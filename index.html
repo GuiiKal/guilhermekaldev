@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="Portfólio de Guilherme Kal — Desenvolvedor Web especializado em PHP, Laravel e front-end moderno.">
+  <title>Guilherme Kal — Desenvolvedor Web</title>
+
+  <!-- Prevent flash of wrong theme — must run before any CSS is painted -->
+  <script>
+    (function () {
+      const theme = localStorage.getItem('theme') || 'dark';
+      document.documentElement.classList.remove('dark', 'light');
+      document.documentElement.classList.add(theme);
+    })();
+  </script>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700;800&family=DM+Sans:opsz,wght@9..40,300;400;500&display=swap"
+    rel="stylesheet">
+
+  <!-- Tailwind CSS (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Devicons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.15.1/devicon.min.css"
+        integrity="sha384-mTX5j/NIzlehkuOql3BYfNpkDrnvRHS5S7V3ctncUhJjtlL1+85q8lCKi8A5sUb+"
+        crossorigin="anonymous">
+
+  <!-- reCAPTCHA v2 -->
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
+  <!-- Custom styles -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+  <!-- ─── Custom cursor ────────────────────────────────────── -->
+  <div id="cursor-dot"></div>
+  <div id="cursor-ring"></div>
+
+  <!-- ─── Navbar ─────────────────────────────────────────── -->
+  <nav class="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4"
+    style="background: var(--bg-nav); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border);">
+
+    <span class="font-display font-extrabold text-xl tracking-tight gradient-text">GK</span>
+
+    <ul class="hidden md:flex items-center gap-8 text-sm" style="color: var(--text-muted);">
+      <li><a href="#hero" class="hover:text-white transition-colors">Início</a></li>
+      <li><a href="#sobre" class="hover:text-white transition-colors">Sobre</a></li>
+      <li><a href="#tecnologias" class="hover:text-white transition-colors">Skills</a></li>
+      <li><a href="#portfolio" class="hover:text-white transition-colors">Portfólio</a></li>
+      <li><a href="#servicos" class="hover:text-white transition-colors">Serviços</a></li>
+      <li><a href="#contato" class="hover:text-white transition-colors">Contato</a></li>
+    </ul>
+
+    <button id="theme-toggle" class="w-9 h-9 flex items-center justify-center rounded-full transition-colors"
+      style="border: 1px solid var(--border);" aria-label="Alternar tema">
+      <span id="theme-icon" class="flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
+          </svg>
+        </span>
+    </button>
+  </nav>
+
+  <!-- ─── Dots Nav (desktop only) ─────────────────────────── -->
+  <nav class="hidden md:flex fixed right-6 top-1/2 -translate-y-1/2 z-50 flex-col gap-3"
+    aria-label="Navegação por seções">
+    <a href="#hero" class="nav-dot block w-2 rounded-full transition-all duration-300"
+      style="height:8px; background: rgba(255,255,255,0.2);" data-section="hero" aria-label="Ir para início"></a>
+    <a href="#sobre" class="nav-dot block w-2 rounded-full transition-all duration-300"
+      style="height:8px; background: rgba(255,255,255,0.2);" data-section="sobre" aria-label="Ir para sobre"></a>
+    <a href="#tecnologias" class="nav-dot block w-2 rounded-full transition-all duration-300"
+      style="height:8px; background: rgba(255,255,255,0.2);" data-section="tecnologias"
+      aria-label="Ir para tecnologias"></a>
+    <a href="#portfolio" class="nav-dot block w-2 rounded-full transition-all duration-300"
+      style="height:8px; background: rgba(255,255,255,0.2);" data-section="portfolio"
+      aria-label="Ir para portfólio"></a>
+    <a href="#servicos" class="nav-dot block w-2 rounded-full transition-all duration-300"
+      style="height:8px; background: rgba(255,255,255,0.2);" data-section="servicos" aria-label="Ir para serviços"></a>
+    <a href="#contato" class="nav-dot block w-2 rounded-full transition-all duration-300"
+      style="height:8px; background: rgba(255,255,255,0.2);" data-section="contato" aria-label="Ir para contato"></a>
+  </nav>
+
+  <!-- ─── Main scroll container ───────────────────────────── -->
+  <main class="snap-container" id="main-scroll">
+
+    <!-- ══════════════════════════════════════════════════════ -->
+    <!-- 01 HERO                                               -->
+    <!-- ══════════════════════════════════════════════════════ -->
+    <section class="snap-section relative" id="hero">
+
+      <!-- Background glow blobs -->
+      <div class="pointer-events-none absolute inset-0">
+        <div class="blob-purple absolute -top-32 -right-32 w-96 h-96 rounded-full"
+          style="background: radial-gradient(circle, rgba(124,58,237,0.25), transparent 70%);"></div>
+        <div class="blob-blue absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full"
+          style="background: radial-gradient(circle, rgba(59,130,246,0.15), transparent 70%);"></div>
+      </div>
+
+      <div class="relative z-10 flex flex-col items-center justify-center text-center px-6 py-24 min-h-screen">
+
+        <p class="reveal text-xs tracking-[0.3em] uppercase mb-6" style="color: var(--accent);">Olá, eu sou</p>
+
+        <h1 class="reveal font-display font-extrabold leading-[0.9] tracking-tight mb-6"
+          style="font-size: clamp(3.5rem, 12vw, 9rem); transition-delay: 0.1s;">
+          GUILHERME<br>
+          <span class="gradient-text">KAL</span>
+        </h1>
+
+        <p class="reveal text-sm tracking-[0.2em] uppercase mb-10"
+          style="color: var(--text-muted); transition-delay: 0.2s;">
+          Desenvolvedor&nbsp;<span id="typing-target" class="gradient-text"></span><span class="typing-cursor">|</span>
+        </p>
+
+        <div class="reveal flex gap-4" style="transition-delay: 0.3s;">
+          <a href="#portfolio" class="btn-gradient px-7 py-3 rounded-full text-sm font-semibold inline-block">
+            Ver projetos
+          </a>
+          <a href="#contato" class="px-7 py-3 rounded-full text-sm font-semibold transition-colors inline-block"
+            style="border: 1px solid var(--border); color: var(--accent);">
+            Contratar
+          </a>
+        </div>
+
+      </div>
+
+      <!-- Scroll indicator -->
+      <div class="reveal absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+        style="transition-delay: 0.5s;">
+        <div class="w-px h-10 animate-bounce"
+          style="background: linear-gradient(to bottom, var(--accent), transparent);"></div>
+        <span class="text-[9px] tracking-[0.3em] uppercase" style="color: var(--text-muted);">scroll</span>
+      </div>
+
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════ -->
+    <!-- 02 SOBRE                                              -->
+    <!-- ══════════════════════════════════════════════════════ -->
+    <section class="snap-section" id="sobre">
+      <div class="max-w-5xl mx-auto px-6 w-full py-24">
+
+        <div class="flex flex-col md:flex-row items-center gap-12 md:gap-20">
+
+          <!-- Photo -->
+          <div class="reveal flex-shrink-0">
+            <div class="photo-glow w-48 h-48 md:w-56 md:h-56">
+              <img src="img/foto-perfil-2026.png" alt="Foto de Guilherme Kal" class="w-full h-full object-cover">
+            </div>
+          </div>
+
+          <!-- Text -->
+          <div>
+            <p class="reveal text-xs tracking-[0.3em] uppercase mb-4" style="color: var(--accent);">// sobre mim</p>
+
+            <h2 class="reveal font-display font-extrabold leading-tight mb-6"
+              style="font-size: clamp(2rem, 5vw, 3.5rem);">
+              Dev com<br><span class="gradient-text">propósito.</span>
+            </h2>
+
+            <div class="w-10 h-px mb-6" style="background: var(--accent);"></div>
+
+            <p class="reveal text-base leading-relaxed mb-4" style="color: var(--text-muted);">
+              Sou Guilherme Kal, desenvolvedor web com foco em PHP, Laravel e soluções front-end modernas.
+              Construo sistemas web sob medida para freelancers, PMEs e startups que querem resultados reais.
+            </p>
+            <p class="reveal text-base leading-relaxed" style="color: var(--text-muted);">
+              Acredito que tecnologia bem aplicada transforma negócios. Por isso combino código limpo,
+              boas práticas e atenção aos detalhes em cada projeto.
+            </p>
+
+            <div class="reveal stats-row mt-8">
+              <div class="stat-item">
+                <span class="stat-num" data-target="3" data-suffix="+">0</span>
+                <span class="stat-label">anos de experiência</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-num" data-target="10" data-suffix="+">0</span>
+                <span class="stat-label">projetos entregues</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-num" data-target="100" data-suffix="%">0</span>
+                <span class="stat-label">dedicação</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════ -->
+    <!-- 03 TECNOLOGIAS                                        -->
+    <!-- ══════════════════════════════════════════════════════ -->
+    <section class="snap-section" id="tecnologias">
+      <div class="max-w-5xl mx-auto px-6 w-full py-24">
+
+        <p class="reveal text-xs tracking-[0.3em] uppercase mb-4" style="color: var(--accent);">// tecnologias</p>
+
+        <h2 class="reveal font-display font-extrabold leading-tight mb-12" style="font-size: clamp(2rem, 5vw, 3.5rem);">
+          Stack que <span class="gradient-text">domino.</span>
+        </h2>
+
+        <div class="space-y-8">
+
+          <!-- Linguagens & Frameworks -->
+          <div class="reveal">
+            <p class="tech-cat-label">Linguagens &amp; Frameworks</p>
+            <div class="tech-grid stagger">
+              <div class="tech-card tech-card--purple">
+                <div class="tech-card__icon"><i class="devicon-php-plain colored"></i></div>
+                <span class="tech-card__name">PHP</span>
+              </div>
+              <div class="tech-card tech-card--purple">
+                <div class="tech-card__icon"><i class="devicon-javascript-plain colored"></i></div>
+                <span class="tech-card__name">JavaScript</span>
+              </div>
+              <div class="tech-card tech-card--purple">
+                <div class="tech-card__icon"><i class="devicon-laravel-plain colored"></i></div>
+                <span class="tech-card__name">Laravel</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Front-end -->
+          <div class="reveal">
+            <p class="tech-cat-label">Front-end</p>
+            <div class="tech-grid stagger">
+              <div class="tech-card tech-card--blue">
+                <div class="tech-card__icon"><i class="devicon-html5-plain colored"></i></div>
+                <span class="tech-card__name">HTML5</span>
+              </div>
+              <div class="tech-card tech-card--blue">
+                <div class="tech-card__icon"><i class="devicon-css3-plain colored"></i></div>
+                <span class="tech-card__name">CSS3</span>
+              </div>
+              <div class="tech-card tech-card--blue">
+                <div class="tech-card__icon"><i class="devicon-bootstrap-plain colored"></i></div>
+                <span class="tech-card__name">Bootstrap</span>
+              </div>
+              <div class="tech-card tech-card--blue">
+                <div class="tech-card__icon"><i class="devicon-tailwindcss-plain colored"></i></div>
+                <span class="tech-card__name">Tailwind CSS</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Banco de Dados -->
+          <div class="reveal">
+            <p class="tech-cat-label">Banco de Dados</p>
+            <div class="tech-grid stagger">
+              <div class="tech-card tech-card--green">
+                <div class="tech-card__icon"><i class="devicon-mysql-plain colored"></i></div>
+                <span class="tech-card__name">MySQL</span>
+              </div>
+              <div class="tech-card tech-card--green">
+                <div class="tech-card__icon"><i class="devicon-microsoftsqlserver-plain colored"></i></div>
+                <span class="tech-card__name">SQL Server</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ferramentas -->
+          <div class="reveal">
+            <p class="tech-cat-label">Ferramentas &amp; Metodologias</p>
+            <div class="tech-grid stagger">
+              <div class="tech-card tech-card--amber">
+                <div class="tech-card__icon"><i class="devicon-git-plain colored"></i></div>
+                <span class="tech-card__name">Git</span>
+              </div>
+              <div class="tech-card tech-card--amber">
+                <div class="tech-card__icon"><i class="devicon-github-original colored"></i></div>
+                <span class="tech-card__name">GitHub</span>
+              </div>
+              <div class="tech-card tech-card--amber">
+                <div class="tech-card__icon"><i class="devicon-jira-plain colored"></i></div>
+                <span class="tech-card__name">Scrum</span>
+              </div>
+              <div class="tech-card tech-card--amber">
+                <div class="tech-card__icon"><i class="devicon-trello-plain colored"></i></div>
+                <span class="tech-card__name">Kanban</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════ -->
+    <!-- 04 PORTFÓLIO                                          -->
+    <!-- ══════════════════════════════════════════════════════ -->
+    <section class="snap-section" id="portfolio">
+      <div class="max-w-5xl mx-auto px-6 w-full py-24">
+
+        <p class="reveal text-xs tracking-[0.3em] uppercase mb-4" style="color: var(--accent);">// portfólio</p>
+
+        <h2 class="reveal font-display font-extrabold leading-tight mb-12" style="font-size: clamp(2rem, 5vw, 3.5rem);">
+          Projetos <span class="gradient-text">reais.</span>
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+          <!-- Clínica Ser Plural -->
+          <a href="https://serplural.com.br/" target="_blank" rel="noopener noreferrer"
+            class="portfolio-card reveal group relative rounded-2xl overflow-hidden block"
+            style="border: 1px solid var(--border);">
+            <img src="img/serplural.png" alt="Print da tela inicial do site da Clínica Ser Plural"
+              class="w-full h-48 object-cover">
+            <div class="overlay absolute inset-0 flex flex-col items-center justify-center"
+              style="background: rgba(124,58,237,0.85);">
+              <svg class="w-8 h-8 text-white mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+              <span class="text-white text-sm font-semibold">Ver projeto</span>
+            </div>
+            <div class="p-4" style="background: rgba(124,58,237,0.05);">
+              <h3 class="font-display font-bold text-base mb-1">Clínica Ser Plural</h3>
+              <p class="text-xs" style="color: var(--accent);">HTML5 · CSS3 · JavaScript · Hospedagem</p>
+            </div>
+          </a>
+
+          <!-- Em desenvolvimento -->
+          <div class="reveal rounded-2xl overflow-hidden opacity-40" style="border: 1px solid var(--border);">
+            <div class="w-full h-48 flex items-center justify-center" style="background: rgba(124,58,237,0.05);">
+              <span class="text-xs tracking-[0.2em] uppercase" style="color: var(--text-muted);">Em breve</span>
+            </div>
+            <div class="p-4" style="background: rgba(124,58,237,0.03);">
+              <h3 class="font-display font-bold text-base mb-1" style="color: var(--text-muted);">Em desenvolvimento
+              </h3>
+              <p class="text-xs" style="color: var(--border);">· · ·</p>
+            </div>
+          </div>
+
+          <!-- Em desenvolvimento -->
+          <div class="reveal rounded-2xl overflow-hidden opacity-40" style="border: 1px solid var(--border);">
+            <div class="w-full h-48 flex items-center justify-center" style="background: rgba(124,58,237,0.05);">
+              <span class="text-xs tracking-[0.2em] uppercase" style="color: var(--text-muted);">Em breve</span>
+            </div>
+            <div class="p-4" style="background: rgba(124,58,237,0.03);">
+              <h3 class="font-display font-bold text-base mb-1" style="color: var(--text-muted);">Em desenvolvimento
+              </h3>
+              <p class="text-xs" style="color: var(--border);">· · ·</p>
+            </div>
+          </div>
+
+
+          <!-- GitHub link -->
+          <div class="reveal mt-8 flex items-center gap-3" style="color: var(--text-muted);">
+            <div class="w-8 h-px" style="background: var(--border);"></div>
+            <a href="https://github.com/GuiiKal" target="_blank" rel="noopener noreferrer"
+              class="flex items-center gap-2 text-sm transition-colors hover:text-white">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path fill-rule="evenodd"
+                  d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+                  clip-rule="evenodd" />
+              </svg>
+              GuiiKal
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════ -->
+    <!-- 05 SERVIÇOS                                           -->
+    <!-- ══════════════════════════════════════════════════════ -->
+    <section class="snap-section" id="servicos">
+      <div class="max-w-5xl mx-auto px-6 w-full py-24">
+
+        <p class="reveal text-xs tracking-[0.3em] uppercase mb-4" style="color: var(--accent);">// serviços</p>
+
+        <h2 class="reveal font-display font-extrabold leading-tight mb-12" style="font-size: clamp(2rem, 5vw, 3.5rem);">
+          O que <span class="gradient-text">ofereço.</span>
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+          <!-- Serviço 0 — Sites Responsivos -->
+          <div class="service-card reveal cursor-pointer group" role="button" tabindex="0" data-offcanvas="service-0">
+            <div class="service-card__icon-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418"/>
+              </svg>
+            </div>
+            <div class="service-card__body">
+              <h3 class="service-card__title">Sites Responsivos</h3>
+              <p class="service-card__desc">Landing pages, sites institucionais e e-commerce modernos, rápidos e adaptados a todos os dispositivos.</p>
+            </div>
+            <svg class="service-card__arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </div>
+
+          <!-- Serviço 1 — Manutenção -->
+          <div class="service-card reveal cursor-pointer group" role="button" tabindex="0" data-offcanvas="service-1">
+            <div class="service-card__icon-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l5.654-4.654m5.647-4.647 1.75-1.75a3 3 0 0 0-4.243-4.243l-1.75 1.75m5.654 4.643-.853.853a3 3 0 0 1-4.243 0l-.853-.853m5.65-4.643a3 3 0 0 0-4.243 4.243"/>
+              </svg>
+            </div>
+            <div class="service-card__body">
+              <h3 class="service-card__title">Manutenção de Sites</h3>
+              <p class="service-card__desc">Atualização, correção de bugs e melhorias em sites existentes para que funcionem sempre perfeitamente.</p>
+            </div>
+            <svg class="service-card__arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </div>
+
+          <!-- Serviço 2 — Treinamento Google -->
+          <div class="service-card reveal cursor-pointer group" role="button" tabindex="0" data-offcanvas="service-2">
+            <div class="service-card__icon-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 3.741-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5"/>
+              </svg>
+            </div>
+            <div class="service-card__body">
+              <h3 class="service-card__title">Treinamento Google</h3>
+              <p class="service-card__desc">Capacitação personalizada para você ou sua equipe no uso eficiente das ferramentas Google Workspace.</p>
+            </div>
+            <svg class="service-card__arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </div>
+
+          <!-- Serviço 3 — SEO & Performance -->
+          <div class="service-card reveal cursor-pointer group" role="button" tabindex="0" data-offcanvas="service-3">
+            <div class="service-card__icon-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941"/>
+              </svg>
+            </div>
+            <div class="service-card__body">
+              <h3 class="service-card__title">SEO &amp; Performance</h3>
+              <p class="service-card__desc">Otimização de velocidade, Core Web Vitals e SEO técnico para seu site aparecer nos primeiros resultados.</p>
+            </div>
+            <svg class="service-card__arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </div>
+
+          <!-- Serviço 5 — Landing Pages CRO -->
+          <div class="service-card reveal cursor-pointer group" role="button" tabindex="0" data-offcanvas="service-5">
+            <div class="service-card__icon-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5"/>
+              </svg>
+            </div>
+            <div class="service-card__body">
+              <h3 class="service-card__title">Landing Pages CRO</h3>
+              <p class="service-card__desc">Páginas focadas em conversão — estrutura persuasiva, CTAs estratégicos e design que transforma visitas em clientes.</p>
+            </div>
+            <svg class="service-card__arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </div>
+
+          <!-- Serviço 6 — Automações com IA -->
+          <div class="service-card reveal cursor-pointer group" role="button" tabindex="0" data-offcanvas="service-6">
+            <div class="service-card__icon-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z"/>
+              </svg>
+            </div>
+            <div class="service-card__body">
+              <h3 class="service-card__title">Automações com IA</h3>
+              <p class="service-card__desc">Workflows inteligentes com OpenAI e Gemini API — geração de conteúdo, respostas automáticas e análise de dados.</p>
+            </div>
+            <svg class="service-card__arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </div>
+
+          <!-- Serviço 7 — Consultoria IA para PMEs -->
+          <div class="service-card reveal cursor-pointer group" role="button" tabindex="0" data-offcanvas="service-7">
+            <div class="service-card__icon-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5m.75-9 3-3 2.148 2.148A12.061 12.061 0 0 1 16.5 7.605"/>
+              </svg>
+            </div>
+            <div class="service-card__body">
+              <h3 class="service-card__title">Consultoria IA para PMEs</h3>
+              <p class="service-card__desc">Mapeamento do negócio e identificação de onde IA pode reduzir custo, ganhar tempo e escalar operações.</p>
+            </div>
+            <svg class="service-card__arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </div>
+
+        </div>
+
+        <!-- Service Modals -->
+        <div id="service-0" class="service-modal" aria-hidden="true">
+          <div class="modal-box">
+            <div class="flex items-center justify-between mb-5">
+              <span class="font-display font-bold text-lg">Sites Responsivos</span>
+              <button class="modal-close w-8 h-8 flex items-center justify-center rounded-full" style="border: 1px solid var(--border);" data-target="service-0" aria-label="Fechar">✕</button>
+            </div>
+            <p class="text-sm leading-relaxed mb-6" style="color: var(--text-muted);">Desenvolvimento com HTML5, CSS3, Tailwind, Laravel. Sites com alto desempenho, SEO básico e design responsivo. Inclui e-commerce com sistemas de pagamento.</p>
+            <a href="#contato" class="btn-gradient px-6 py-3 rounded-full text-sm font-semibold text-center inline-block modal-close" data-target="service-0" data-message="Olá! Tenho interesse em desenvolver um site responsivo. Gostaria de solicitar um orçamento.">Solicitar orçamento</a>
+          </div>
+        </div>
+
+        <div id="service-1" class="service-modal" aria-hidden="true">
+          <div class="modal-box">
+            <div class="flex items-center justify-between mb-5">
+              <span class="font-display font-bold text-lg">Manutenção de Sites</span>
+              <button class="modal-close w-8 h-8 flex items-center justify-center rounded-full" style="border: 1px solid var(--border);" data-target="service-1" aria-label="Fechar">✕</button>
+            </div>
+            <p class="text-sm leading-relaxed mb-6" style="color: var(--text-muted);">Diagnóstico, correção e otimização de sites em produção. Compatibilidade com diferentes versões de PHP, atualização de dependências e melhorias de segurança.</p>
+            <a href="#contato" class="btn-gradient px-6 py-3 rounded-full text-sm font-semibold text-center inline-block modal-close" data-target="service-1" data-message="Olá! Preciso de manutenção no meu site. Gostaria de solicitar um orçamento.">Solicitar orçamento</a>
+          </div>
+        </div>
+
+        <div id="service-2" class="service-modal" aria-hidden="true">
+          <div class="modal-box">
+            <div class="flex items-center justify-between mb-5">
+              <span class="font-display font-bold text-lg">Treinamento Google</span>
+              <button class="modal-close w-8 h-8 flex items-center justify-center rounded-full" style="border: 1px solid var(--border);" data-target="service-2" aria-label="Fechar">✕</button>
+            </div>
+            <p class="text-sm leading-relaxed mb-6" style="color: var(--text-muted);">Treinamentos online ou presenciais em Google Drive, Docs, Sheets, Slides, Meet e Gmail. Inclui material de apoio e acompanhamento pós-treinamento.</p>
+            <a href="#contato" class="btn-gradient px-6 py-3 rounded-full text-sm font-semibold text-center inline-block modal-close" data-target="service-2" data-message="Olá! Tenho interesse no treinamento de Google Workspace. Gostaria de solicitar um orçamento.">Solicitar orçamento</a>
+          </div>
+        </div>
+
+        <div id="service-3" class="service-modal" aria-hidden="true">
+          <div class="modal-box">
+            <div class="flex items-center justify-between mb-5">
+              <span class="font-display font-bold text-lg">SEO &amp; Performance</span>
+              <button class="modal-close w-8 h-8 flex items-center justify-center rounded-full" style="border: 1px solid var(--border);" data-target="service-3" aria-label="Fechar">✕</button>
+            </div>
+            <p class="text-sm leading-relaxed mb-6" style="color: var(--text-muted);">Análise e otimização de Core Web Vitals, compressão de assets, lazy loading, cache e estrutura semântica. Seu site mais rápido e melhor ranqueado no Google.</p>
+            <a href="#contato" class="btn-gradient px-6 py-3 rounded-full text-sm font-semibold text-center inline-block modal-close" data-target="service-3" data-message="Olá! Tenho interesse em otimização de SEO e performance para meu site. Gostaria de solicitar um orçamento.">Solicitar orçamento</a>
+          </div>
+        </div>
+
+        <div id="service-5" class="service-modal" aria-hidden="true">
+          <div class="modal-box">
+            <div class="flex items-center justify-between mb-5">
+              <span class="font-display font-bold text-lg">Landing Pages CRO</span>
+              <button class="modal-close w-8 h-8 flex items-center justify-center rounded-full" style="border: 1px solid var(--border);" data-target="service-5" aria-label="Fechar">✕</button>
+            </div>
+            <p class="text-sm leading-relaxed mb-6" style="color: var(--text-muted);">Páginas de alta conversão com hierarquia visual clara, provas sociais, formulários otimizados e integração com ferramentas de analytics. Foco em transformar clique em cliente.</p>
+            <a href="#contato" class="btn-gradient px-6 py-3 rounded-full text-sm font-semibold text-center inline-block modal-close" data-target="service-5" data-message="Olá! Tenho interesse em uma landing page focada em conversão (CRO). Gostaria de solicitar um orçamento.">Solicitar orçamento</a>
+          </div>
+        </div>
+
+        <div id="service-6" class="service-modal" aria-hidden="true">
+          <div class="modal-box">
+            <div class="flex items-center justify-between mb-5">
+              <span class="font-display font-bold text-lg">Automações com IA</span>
+              <button class="modal-close w-8 h-8 flex items-center justify-center rounded-full" style="border: 1px solid var(--border);" data-target="service-6" aria-label="Fechar">✕</button>
+            </div>
+            <p class="text-sm leading-relaxed mb-6" style="color: var(--text-muted);">Criação de workflows automatizados usando OpenAI API e Gemini API integrados ao seu sistema. Casos de uso: geração de e-mails personalizados, resumo de documentos, classificação de leads, respostas automáticas via WhatsApp e chatbots treinados com seus dados.</p>
+            <a href="#contato" class="btn-gradient px-6 py-3 rounded-full text-sm font-semibold text-center inline-block modal-close" data-target="service-6" data-message="Olá! Tenho interesse em automações com IA para o meu negócio. Gostaria de solicitar um orçamento.">Solicitar orçamento</a>
+          </div>
+        </div>
+
+        <div id="service-7" class="service-modal" aria-hidden="true">
+          <div class="modal-box">
+            <div class="flex items-center justify-between mb-5">
+              <span class="font-display font-bold text-lg">Consultoria IA para PMEs</span>
+              <button class="modal-close w-8 h-8 flex items-center justify-center rounded-full" style="border: 1px solid var(--border);" data-target="service-7" aria-label="Fechar">✕</button>
+            </div>
+            <p class="text-sm leading-relaxed mb-6" style="color: var(--text-muted);">Análise completa dos processos do seu negócio para identificar onde IA gera mais impacto — redução de tarefas manuais, atendimento escalável, análise de dados e tomada de decisão mais rápida. Entrega: relatório de oportunidades + roadmap de implementação.</p>
+            <a href="#contato" class="btn-gradient px-6 py-3 rounded-full text-sm font-semibold text-center inline-block modal-close" data-target="service-7" data-message="Olá! Tenho interesse em consultoria de IA para minha empresa. Gostaria de solicitar um orçamento.">Solicitar orçamento</a>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════ -->
+    <!-- 06 CONTATO                                            -->
+    <!-- ══════════════════════════════════════════════════════ -->
+    <section class="snap-section" id="contato">
+      <div class="max-w-2xl mx-auto px-6 w-full py-24 flex flex-col justify-center min-h-screen">
+
+        <p class="reveal text-xs tracking-[0.3em] uppercase mb-4" style="color: var(--accent);">// contato</p>
+
+        <h2 class="reveal font-display font-extrabold leading-tight mb-4" style="font-size: clamp(2rem, 5vw, 3.5rem);">
+          Vamos construir<br><span class="gradient-text">algo juntos?</span>
+        </h2>
+
+        <p class="reveal text-sm mb-8" style="color: var(--text-muted);">
+          Preencha o formulário e responderei em breve.
+        </p>
+
+        <!-- Contact Form -->
+        <form id="contact-form" class="reveal space-y-4" novalidate>
+
+          <!-- Honeypot — invisível para humanos, bots preenchem -->
+          <div style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;" aria-hidden="true">
+            <input type="text" id="_trap_field" name="_trap_field" tabindex="-1" autocomplete="off">
+          </div>
+
+          <div>
+            <label for="name" class="block text-xs tracking-wider uppercase mb-2"
+              style="color: var(--text-muted);">Nome</label>
+            <input type="text" id="name" name="entry.1039809518"
+              class="w-full px-4 py-3 rounded-xl text-sm transition-colors"
+              style="background: rgba(124,58,237,0.07); border: 1px solid var(--border); color: var(--text-primary); outline: none;"
+              placeholder="Seu nome completo" required maxlength="100">
+          </div>
+
+          <div>
+            <label for="email" class="block text-xs tracking-wider uppercase mb-2"
+              style="color: var(--text-muted);">Email</label>
+            <input type="email" id="email" name="entry.2004470234"
+              class="w-full px-4 py-3 rounded-xl text-sm transition-colors"
+              style="background: rgba(124,58,237,0.07); border: 1px solid var(--border); color: var(--text-primary); outline: none;"
+              placeholder="seu@email.com" required maxlength="254">
+          </div>
+
+          <div>
+            <label for="whatsapp" class="block text-xs tracking-wider uppercase mb-2"
+              style="color: var(--text-muted);">WhatsApp</label>
+            <input type="tel" id="whatsapp" name="entry.753548826"
+              class="w-full px-4 py-3 rounded-xl text-sm transition-colors"
+              style="background: rgba(124,58,237,0.07); border: 1px solid var(--border); color: var(--text-primary); outline: none;"
+              placeholder="(11) 99999-9999" maxlength="20">
+          </div>
+
+          <div>
+            <label for="message" class="block text-xs tracking-wider uppercase mb-2"
+              style="color: var(--text-muted);">Mensagem</label>
+            <textarea id="message" name="entry.1534861189" rows="4"
+              class="w-full px-4 py-3 rounded-xl text-sm resize-none transition-colors"
+              style="background: rgba(124,58,237,0.07); border: 1px solid var(--border); color: var(--text-primary); outline: none;"
+              placeholder="Descreva seu projeto ou dúvida..." required maxlength="2000"></textarea>
+          </div>
+
+          <div class="g-recaptcha"
+               data-sitekey="6Lf-PUMtAAAAADB-ZJLoiQ8sVhnYURWzY1tBPKO7"
+               data-theme="dark"
+               data-size="normal"></div>
+
+          <button type="submit" id="contact-submit"
+            class="btn-gradient w-full py-3 rounded-full text-sm font-semibold transition-opacity">
+            Enviar mensagem
+          </button>
+
+          <!-- Feedback -->
+          <p id="form-success" class="hidden text-center text-sm font-medium py-2 rounded-full"
+             style="background: rgba(16,185,129,0.12); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.25);">
+            ✓ Mensagem enviada! Responderei em breve.
+          </p>
+          <p id="form-error" class="hidden text-center text-sm py-2 rounded-full"
+             style="background: rgba(239,68,68,0.1); color: #fca5a5; border: 1px solid rgba(239,68,68,0.2);">
+            Erro ao enviar. Tente novamente.
+          </p>
+        </form>
+
+
+
+      </div>
+
+      <!-- Footer inside Contato -->
+      <footer class="py-6 text-center" style="border-top: 1px solid var(--border);">
+        <p class="text-xs" style="color: var(--text-muted);">
+          &copy; 2026 Guilherme Kal &mdash; Desenvolvido por <a href="https://linkedin.com/in/guilhermekal"
+            target="_blank" rel="noopener noreferrer" class="underline">Guilherme Kal</a>
+        </p>
+      </footer>
+
+    </section>
+
+  </main>
+
+  <!-- GSAP + plugins -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"
+          integrity="sha384-g4NTh/Iv5PPU4xPyhEWqPcwtNXOvdaDI8LLnyYfyNZOjKJeYQyjzQ9X5275eBjpt"
+          crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"
+          integrity="sha384-Z3REaz79l2IaAZqJsSABtTbhjgOUYyV3p90XNnAPCSHg3EMTz1fouunq9WZRtj3d"
+          crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollToPlugin.min.js"
+          integrity="sha384-RVPQwTb0fPz9kI8s5GwAq1Qioto9fnEQt1aKGSQSm8xV6+DIdBSgcCShoHqfKnhv"
+          crossorigin="anonymous"></script>
+
+  <script src="js/script.js"></script>
+</body>
+
+</html>
