@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workflow Builder</title>
+  <link rel="icon" href="../../img/favicon-gk.jpeg" type="image/jpeg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a12;
+      --bg-sidebar: #0e0e18;
+      --bg-node: #161622;
+      --bg-panel: #0e0e18;
+      --text: #e2e2f0;
+      --muted: rgba(226,226,240,0.45);
+      --border: rgba(255,255,255,0.07);
+      --border-hover: rgba(255,255,255,0.14);
+      --blue: #3B82F6;
+      --purple: #8B5CF6;
+      --green: #10B981;
+      --yellow: #F59E0B;
+      --red: #EF4444;
+      --topbar-h: 48px;
+      --sidebar-w: 240px;
+      --panel-w: 300px;
+      --log-h: 220px;
+    }
+
+    html, body { height: 100%; overflow: hidden; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+    }
+
+    /* ─── TOPBAR ─────────────────────────────────────────── */
+    #topbar {
+      position: fixed; top: 0; left: 0; right: 0;
+      height: var(--topbar-h);
+      background: rgba(14,14,24,0.95);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 12px;
+      padding: 0 16px;
+      z-index: 100;
+      backdrop-filter: blur(8px);
+    }
+    #topbar .logo {
+      display: flex; align-items: center; gap: 8px;
+      flex-shrink: 0;
+    }
+    #topbar .logo svg { width: 22px; height: 22px; }
+    #topbar .logo-title {
+      font-weight: 600; font-size: 14px;
+      color: var(--text);
+      white-space: nowrap;
+    }
+    #topbar .sep {
+      width: 1px; height: 20px;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+    #workflow-name-input {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 4px 10px;
+      width: 180px;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+    #workflow-name-input:focus {
+      border-color: var(--blue);
+    }
+    #topbar .spacer { flex: 1; }
+    #btn-execute {
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 16px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      display: flex; align-items: center; gap: 6px;
+      flex-shrink: 0;
+    }
+    #btn-execute:hover { background: #0da372; }
+    #btn-execute:active { transform: scale(0.97); }
+    #btn-execute.executing {
+      background: var(--yellow);
+      cursor: default;
+    }
+    #btn-execute svg { width: 14px; height: 14px; }
+
+    /* ─── LAYOUT ─────────────────────────────────────────── */
+    #layout {
+      position: fixed;
+      top: var(--topbar-h); left: 0; right: 0; bottom: 0;
+      display: flex;
+      transition: bottom 0.3s ease;
+    }
+    #layout.log-open { bottom: var(--log-h); }
+
+    /* ─── SIDEBAR ────────────────────────────────────────── */
+    #sidebar {
+      width: var(--sidebar-w);
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    #sidebar-header {
+      padding: 12px 14px 8px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+    #palette {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 10px 10px;
+    }
+    #palette::-webkit-scrollbar { width: 4px; }
+    #palette::-webkit-scrollbar-track { background: transparent; }
+    #palette::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+
+    .palette-group { margin-bottom: 14px; }
+    .palette-group-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      padding: 4px 4px 6px;
+    }
+    .palette-node {
+      display: flex; align-items: center; gap: 8px;
+      padding: 7px 10px;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      margin-bottom: 4px;
+      cursor: grab;
+      transition: background 0.15s, border-color 0.15s, transform 0.1s;
+      user-select: none;
+    }
+    .palette-node:hover {
+      background: rgba(255,255,255,0.07);
+      border-color: var(--border-hover);
+    }
+    .palette-node:active { cursor: grabbing; transform: scale(0.97); }
+    .palette-node-icon {
+      width: 28px; height: 28px;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .palette-node-icon svg { width: 14px; height: 14px; }
+    .palette-node-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    /* color helpers */
+    .color-blue   { background: rgba(59,130,246,0.18); color: var(--blue); }
+    .color-purple { background: rgba(139,92,246,0.18); color: var(--purple); }
+    .color-green  { background: rgba(16,185,129,0.18); color: var(--green); }
+    .color-yellow { background: rgba(245,158,11,0.18); color: var(--yellow); }
+
+    /* tabs */
+    #sidebar-tabs {
+      border-top: 1px solid var(--border);
+      padding: 10px;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    #sidebar-tabs-label {
+      font-size: 10px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--muted);
+      padding: 0 4px 4px;
+    }
+    .workflow-tab {
+      display: flex; align-items: center; gap: 8px;
+      padding: 7px 10px;
+      border-radius: 7px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      font-size: 12px; font-weight: 500;
+      color: var(--muted);
+      transition: all 0.15s;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .workflow-tab:hover {
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+    }
+    .workflow-tab.active {
+      background: rgba(59,130,246,0.12);
+      border-color: rgba(59,130,246,0.3);
+      color: var(--blue);
+    }
+    .workflow-tab svg { width: 13px; height: 13px; flex-shrink: 0; }
+    #btn-new-workflow {
+      display: flex; align-items: center; gap: 8px;
+      padding: 7px 10px;
+      border-radius: 7px;
+      border: 1px dashed var(--border);
+      cursor: pointer;
+      font-size: 12px; font-weight: 500;
+      color: var(--muted);
+      transition: all 0.15s;
+      background: none;
+    }
+    #btn-new-workflow:hover {
+      border-color: var(--blue);
+      color: var(--blue);
+      background: rgba(59,130,246,0.06);
+    }
+
+    /* ─── CANVAS ─────────────────────────────────────────── */
+    #canvas-wrap {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      background: var(--bg);
+    }
+    #canvas-bg {
+      position: absolute; inset: 0;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px);
+      background-size: 24px 24px;
+      pointer-events: none;
+    }
+    #canvas {
+      position: absolute; inset: 0;
+      overflow: hidden;
+    }
+    #svg-overlay {
+      position: absolute; inset: 0;
+      pointer-events: none;
+      z-index: 10;
+    }
+    #svg-overlay path.connection {
+      pointer-events: stroke;
+      cursor: pointer;
+    }
+
+    /* ─── NODE ───────────────────────────────────────────── */
+    .node {
+      position: absolute;
+      width: 190px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-node);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      cursor: default;
+      user-select: none;
+      transition: box-shadow 0.2s, border-color 0.2s;
+      z-index: 20;
+    }
+    .node:hover {
+      border-color: var(--border-hover);
+      box-shadow: 0 6px 28px rgba(0,0,0,0.5);
+    }
+    .node.selected {
+      border-color: rgba(59,130,246,0.6);
+      box-shadow: 0 0 0 2px rgba(59,130,246,0.2), 0 6px 28px rgba(0,0,0,0.5);
+    }
+    .node.executing {
+      animation: node-pulse 0.8s ease-in-out infinite alternate;
+    }
+    .node.completed {
+      border-color: rgba(16,185,129,0.5);
+      box-shadow: 0 0 0 2px rgba(16,185,129,0.15), 0 6px 28px rgba(0,0,0,0.5);
+    }
+    @keyframes node-pulse {
+      from { box-shadow: 0 0 0 2px rgba(245,158,11,0.3), 0 6px 28px rgba(0,0,0,0.5); }
+      to   { box-shadow: 0 0 16px 4px rgba(245,158,11,0.5), 0 6px 28px rgba(0,0,0,0.5); }
+    }
+
+    .node-header {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 10px;
+      border-radius: 9px 9px 0 0;
+      cursor: move;
+    }
+    .node-header-icon {
+      width: 24px; height: 24px;
+      border-radius: 5px;
+      background: rgba(255,255,255,0.12);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .node-header-icon svg { width: 12px; height: 12px; color: #fff; }
+    .node-header-label {
+      font-size: 12px; font-weight: 600;
+      color: #fff;
+      flex: 1;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .node-body {
+      padding: 8px 10px 10px;
+    }
+    .node-body-preview {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      line-height: 1.5;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+
+    /* ports */
+    .port {
+      position: absolute;
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      border: 2px solid var(--bg-node);
+      cursor: crosshair;
+      z-index: 30;
+      transition: transform 0.15s;
+    }
+    .port:hover { transform: scale(1.4); }
+    .port-in {
+      left: -6px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.3);
+    }
+    .port-in:hover { transform: translateY(-50%) scale(1.4); }
+    .port-out {
+      right: -6px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.5);
+    }
+    .port-out:hover { transform: translateY(-50%) scale(1.4); }
+
+    /* node tooltip */
+    .node-tooltip {
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1a1a2e;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--green);
+      white-space: pre;
+      z-index: 50;
+      max-width: 240px;
+      overflow: hidden;
+      pointer-events: none;
+      animation: tooltip-in 0.2s ease;
+    }
+    @keyframes tooltip-in {
+      from { opacity: 0; transform: translateX(-50%) translateY(4px); }
+      to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+
+    /* ─── CONFIG PANEL ───────────────────────────────────── */
+    #config-panel {
+      width: var(--panel-w);
+      background: var(--bg-panel);
+      border-left: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      flex-shrink: 0;
+      transform: translateX(100%);
+      transition: transform 0.25s ease;
+    }
+    #config-panel.open {
+      transform: translateX(0);
+    }
+    #config-panel-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    #config-panel-title {
+      font-size: 13px; font-weight: 600;
+    }
+    #config-panel-close {
+      width: 24px; height: 24px;
+      border-radius: 5px;
+      border: 1px solid var(--border);
+      background: none;
+      color: var(--muted);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s;
+    }
+    #config-panel-close:hover {
+      background: rgba(255,255,255,0.07);
+      color: var(--text);
+    }
+    #config-panel-body {
+      flex: 1; overflow-y: auto;
+      padding: 14px 16px;
+    }
+    #config-panel-body::-webkit-scrollbar { width: 4px; }
+    #config-panel-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+
+    .config-field { margin-bottom: 14px; }
+    .config-field label {
+      display: block;
+      font-size: 11px; font-weight: 500;
+      color: var(--muted);
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .config-field input,
+    .config-field textarea,
+    .config-field select {
+      width: 100%;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      padding: 7px 10px;
+      transition: border-color 0.2s;
+      outline: none;
+      resize: none;
+    }
+    .config-field input:focus,
+    .config-field textarea:focus,
+    .config-field select:focus {
+      border-color: var(--blue);
+    }
+    .config-field textarea { min-height: 72px; }
+    .config-field select option { background: #161622; }
+
+    #config-panel-footer {
+      padding: 12px 16px;
+      border-top: 1px solid var(--border);
+    }
+    #btn-delete-node {
+      width: 100%;
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.3);
+      border-radius: 6px;
+      color: var(--red);
+      font-family: 'Inter', sans-serif;
+      font-size: 12px; font-weight: 500;
+      padding: 7px;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    #btn-delete-node:hover {
+      background: rgba(239,68,68,0.2);
+      border-color: rgba(239,68,68,0.5);
+    }
+    #btn-delete-node svg { width: 13px; height: 13px; }
+
+    /* ─── EXECUTION LOG ──────────────────────────────────── */
+    #log-panel {
+      position: fixed;
+      left: 0; right: 0;
+      bottom: calc(-1 * var(--log-h));
+      height: var(--log-h);
+      background: var(--bg-sidebar);
+      border-top: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      transition: bottom 0.3s ease;
+      z-index: 90;
+    }
+    #log-panel.open { bottom: 0; }
+    #log-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 16px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    #log-title {
+      font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--muted);
+      display: flex; align-items: center; gap: 6px;
+    }
+    #log-title .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--green);
+      animation: blink 1s infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    #log-close {
+      background: none; border: none; color: var(--muted);
+      cursor: pointer; font-size: 16px; line-height: 1;
+      padding: 2px 6px;
+      border-radius: 4px;
+      transition: color 0.15s;
+    }
+    #log-close:hover { color: var(--text); }
+    #log-entries {
+      flex: 1; overflow-y: auto;
+      padding: 8px 16px;
+    }
+    #log-entries::-webkit-scrollbar { width: 4px; }
+    #log-entries::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+
+    .log-entry {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 5px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      font-size: 12px;
+    }
+    .log-ts {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .log-status {
+      font-size: 10px; font-weight: 600;
+      text-transform: uppercase;
+      padding: 1px 6px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+    .log-status.running {
+      background: rgba(245,158,11,0.15);
+      color: var(--yellow);
+    }
+    .log-status.done {
+      background: rgba(16,185,129,0.15);
+      color: var(--green);
+    }
+    .log-status.info {
+      background: rgba(59,130,246,0.15);
+      color: var(--blue);
+    }
+    .log-msg {
+      flex: 1; color: var(--text);
+    }
+    .log-json-toggle {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--blue);
+      cursor: pointer;
+      text-decoration: underline;
+      flex-shrink: 0;
+    }
+    .log-json-block {
+      display: none;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--green);
+      background: rgba(0,0,0,0.3);
+      border-radius: 5px;
+      padding: 7px 10px;
+      margin-top: 4px;
+      white-space: pre;
+      overflow-x: auto;
+      width: 100%;
+    }
+    .log-json-block.visible { display: block; }
+    .log-entry-wrap { width: 100%; }
+
+    /* ─── DRAG GHOST ─────────────────────────────────────── */
+    #drag-ghost {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.75;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div id="topbar">
+  <div class="logo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+      <path d="M5 3L19 3M5 3V17M19 3V17M5 17L19 17M5 10H19" stroke="#3B82F6"/>
+      <circle cx="5"  cy="3"  r="1.5" fill="#8B5CF6" stroke="none"/>
+      <circle cx="19" cy="3"  r="1.5" fill="#8B5CF6" stroke="none"/>
+      <circle cx="5"  cy="10" r="1.5" fill="#10B981" stroke="none"/>
+      <circle cx="19" cy="10" r="1.5" fill="#10B981" stroke="none"/>
+      <circle cx="5"  cy="17" r="1.5" fill="#F59E0B" stroke="none"/>
+      <circle cx="19" cy="17" r="1.5" fill="#F59E0B" stroke="none"/>
+    </svg>
+    <span class="logo-title">Workflow Builder</span>
+  </div>
+  <div class="sep"></div>
+  <input id="workflow-name-input" type="text" value="Triagem de Emails" spellcheck="false">
+  <div class="spacer"></div>
+  <button id="btn-execute" onclick="executeWorkflow()">
+    <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+    Executar
+  </button>
+</div>
+
+<!-- LAYOUT -->
+<div id="layout">
+
+  <!-- SIDEBAR -->
+  <div id="sidebar">
+    <div id="sidebar-header">Nodes</div>
+    <div id="palette"></div>
+    <div id="sidebar-tabs">
+      <div id="sidebar-tabs-label">Workflows</div>
+      <div class="workflow-tab active" data-wf="0" onclick="switchWorkflow(0)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        Triagem de Emails
+      </div>
+      <div class="workflow-tab" data-wf="1" onclick="switchWorkflow(1)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        Gerador de Relatórios
+      </div>
+      <button id="btn-new-workflow" onclick="newWorkflow()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        Novo Workflow
+      </button>
+    </div>
+  </div>
+
+  <!-- CANVAS -->
+  <div id="canvas-wrap">
+    <div id="canvas-bg"></div>
+    <div id="canvas">
+      <svg id="svg-overlay"></svg>
+    </div>
+  </div>
+
+  <!-- CONFIG PANEL -->
+  <div id="config-panel">
+    <div id="config-panel-header">
+      <span id="config-panel-title">Configurar Node</span>
+      <button id="config-panel-close" onclick="closeConfigPanel()">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M1 1l8 8M9 1L1 9"/>
+        </svg>
+      </button>
+    </div>
+    <div id="config-panel-body"></div>
+    <div id="config-panel-footer">
+      <button id="btn-delete-node" onclick="deleteNode()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>
+        </svg>
+        Remover Node
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<!-- LOG PANEL -->
+<div id="log-panel">
+  <div id="log-header">
+    <div id="log-title">
+      <div class="dot"></div>
+      Log de Execução
+    </div>
+    <button id="log-close" onclick="closeLog()">×</button>
+  </div>
+  <div id="log-entries"></div>
+</div>
+
+<!-- DRAG GHOST -->
+<div id="drag-ghost"></div>
+
+<script>
+// ─── ICONS ──────────────────────────────────────────────────
+const ICONS = {
+  webhook: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="12" cy="12" r="9"/>
+    <path d="M2 12h4M18 12h4M12 2v4M12 18v4"/>
+    <path d="M8 8l8 8M16 8l-8 8" stroke-width="1.5"/>
+  </svg>`,
+  email_in: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <rect x="2" y="4" width="20" height="16" rx="2"/>
+    <path d="M2 7l10 7 10-7"/>
+  </svg>`,
+  schedule: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="12" cy="12" r="9"/>
+    <path d="M12 7v5l3 3"/>
+  </svg>`,
+  classify: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/>
+    <path d="M13 13l2 2 4-4" stroke-width="2"/>
+  </svg>`,
+  summarize: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M4 6h16M4 10h12M4 14h8M4 18h6"/>
+    <path d="M20 14l-3-3-3 3M17 11v7"/>
+  </svg>`,
+  generate: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/>
+    <path d="M18 15l.75 2.25L21 18l-2.25.75L18 21l-.75-2.25L15 18l2.25-.75z" stroke-width="1.5"/>
+  </svg>`,
+  send_email: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M22 2L11 13"/>
+    <path d="M22 2L15 22l-4-9-9-4 20-7z"/>
+  </svg>`,
+  slack: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M22 16.74V7a2 2 0 00-2-2H4a2 2 0 00-2 2v13l4-4h14a2 2 0 002-1.26z"/>
+    <path d="M8 10h8M8 14h5" stroke-width="1.8"/>
+  </svg>`,
+  database: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <ellipse cx="12" cy="6" rx="8" ry="3"/>
+    <path d="M4 6v6c0 1.66 3.58 3 8 3s8-1.34 8-3V6"/>
+    <path d="M4 12v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/>
+  </svg>`,
+  condition: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="6" cy="12" r="3"/>
+    <circle cx="18" cy="6" r="3"/>
+    <circle cx="18" cy="18" r="3"/>
+    <path d="M9 12h3M12 12l3-5M12 12l3 5"/>
+  </svg>`,
+  switch: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="5" cy="12" r="3"/>
+    <circle cx="19" cy="6" r="3"/>
+    <circle cx="19" cy="12" r="3"/>
+    <circle cx="19" cy="18" r="3"/>
+    <path d="M8 12h4M12 12v-5M12 12v0M12 12v5" stroke-linecap="round"/>
+    <path d="M12 7h4M12 12h4M12 17h4"/>
+  </svg>`,
+};
+
+// ─── NODE DEFINITIONS ────────────────────────────────────────
+const NODE_DEFS = {
+  webhook:    { label: 'Webhook',         type: 'trigger', color: '#3B82F6', colorClass: 'color-blue',   icon: 'webhook',    defaultConfig: { url: '/webhooks/entrada', method: 'POST', secret: '' } },
+  email_in:   { label: 'Email Recebido',  type: 'trigger', color: '#3B82F6', colorClass: 'color-blue',   icon: 'email_in',   defaultConfig: { mailbox: 'inbox@empresa.com', filter: '', markRead: true } },
+  schedule:   { label: 'Agendamento',     type: 'trigger', color: '#3B82F6', colorClass: 'color-blue',   icon: 'schedule',   defaultConfig: { cron: '0 9 * * 1-5', timezone: 'America/Sao_Paulo', label: 'Dias úteis 9h' } },
+  classify:   { label: 'Classificar Texto', type: 'ia',    color: '#8B5CF6', colorClass: 'color-purple', icon: 'classify',   defaultConfig: { model: 'gpt-4o', prompt: 'Classifique o texto em: urgente, normal, spam', temperature: 0.2 } },
+  summarize:  { label: 'Resumir',         type: 'ia',      color: '#8B5CF6', colorClass: 'color-purple', icon: 'summarize',  defaultConfig: { model: 'gpt-4o', maxTokens: 300, language: 'pt-br' } },
+  generate:   { label: 'Gerar Resposta',  type: 'ia',      color: '#8B5CF6', colorClass: 'color-purple', icon: 'generate',   defaultConfig: { model: 'gpt-4o', tone: 'formal', prompt: 'Gere uma resposta profissional para:', temperature: 0.7 } },
+  send_email: { label: 'Enviar Email',    type: 'action',  color: '#10B981', colorClass: 'color-green',  icon: 'send_email', defaultConfig: { to: '', subject: 'Resposta automática', from: 'noreply@empresa.com' } },
+  slack:      { label: 'Notificar Slack', type: 'action',  color: '#10B981', colorClass: 'color-green',  icon: 'slack',      defaultConfig: { channel: '#alertas', message: '', mention: '@channel' } },
+  database:   { label: 'Salvar no Banco', type: 'action',  color: '#10B981', colorClass: 'color-green',  icon: 'database',   defaultConfig: { table: 'emails_triados', connection: 'postgres://prod', upsert: true } },
+  condition:  { label: 'Condição If/Else', type: 'filter', color: '#F59E0B', colorClass: 'color-yellow', icon: 'condition',  defaultConfig: { field: 'classification', operator: 'equals', value: 'urgente' } },
+  switch:     { label: 'Switch',          type: 'filter',  color: '#F59E0B', colorClass: 'color-yellow', icon: 'switch',     defaultConfig: { field: 'type', cases: 'caso1,caso2,default' } },
+};
+
+// ─── MOCK EXECUTION DATA ─────────────────────────────────────
+const MOCK_OUTPUT = {
+  webhook:    { event: 'POST /webhooks/entrada', headers: { 'x-secret': 'ok' }, body: { type: 'lead', email: 'joao@exemplo.com', message: 'Preciso de suporte urgente' } },
+  email_in:   { from: 'cliente@empresa.com', subject: 'Bug crítico em produção', body: 'O sistema caiu às 14h...', receivedAt: '2026-11-25T14:03:22Z', messageId: '<abc123@mail.empresa.com>' },
+  schedule:   { triggeredAt: '2026-11-25T09:00:00-03:00', cron: '0 9 * * 1-5', nextRun: '2026-11-26T09:00:00-03:00' },
+  classify:   { model: 'gpt-4o', classification: 'urgente', confidence: 0.97, tokens: 142, latencyMs: 341 },
+  summarize:  { model: 'gpt-4o', summary: 'Sistema de pagamentos fora do ar desde 14h. Impacto: ~1200 usuários. Equipe de infra notificada.', tokens: 287, latencyMs: 512 },
+  generate:   { model: 'gpt-4o', response: 'Olá, recebemos sua solicitação e nossa equipe técnica já está analisando o incidente. Retornaremos em até 30 minutos com uma atualização.', tokens: 410, latencyMs: 673 },
+  send_email: { messageId: '<resp-001@empresa.com>', to: 'cliente@empresa.com', status: 'sent', timestamp: '2026-11-25T14:03:58Z' },
+  slack:      { channel: '#alertas', ts: '1732543438.001200', ok: true, message: 'Email urgente de cliente@empresa.com encaminhado ao time.' },
+  database:   { table: 'emails_triados', rowId: 8471, inserted: true, timestamp: '2026-11-25T14:03:45Z' },
+  condition:  { field: 'classification', value: 'urgente', result: true, branch: 'true' },
+  switch:     { field: 'type', matched: 'caso1', branches: ['caso1', 'caso2', 'default'] },
+};
+
+// ─── STATE ───────────────────────────────────────────────────
+let nodeCounter = 0;
+let selectedNodeId = null;
+let workflows = [
+  { name: 'Triagem de Emails', nodes: [], connections: [] },
+  { name: 'Gerador de Relatórios', nodes: [], connections: [] },
+];
+let currentWf = 0;
+let isExecuting = false;
+
+// drag state
+let draggingNode = null;
+let dragOffX = 0, dragOffY = 0;
+
+// connection drawing state
+let drawingConn = false;
+let connSrcNodeId = null;
+let connSrcPort = null; // 'out'
+let tempPath = null;
+
+// ─── HELPERS ─────────────────────────────────────────────────
+function uid() { return 'n' + (++nodeCounter); }
+
+function getCanvas() { return document.getElementById('canvas'); }
+function getSvg() { return document.getElementById('svg-overlay'); }
+
+function getPortCenter(portEl) {
+  const svg = getSvg();
+  const svgRect = svg.getBoundingClientRect();
+  const portRect = portEl.getBoundingClientRect();
+  return {
+    x: portRect.left + portRect.width / 2 - svgRect.left,
+    y: portRect.top  + portRect.height / 2 - svgRect.top,
+  };
+}
+
+function getBezierPath(x1, y1, x2, y2) {
+  const dx = Math.abs(x2 - x1) * 0.6 + 40;
+  return `M${x1},${y1} C${x1+dx},${y1} ${x2-dx},${y2} ${x2},${y2}`;
+}
+
+function getNodeBodyPreview(node) {
+  const def = NODE_DEFS[node.kind];
+  const cfg = node.config;
+  if (!def) return '';
+  switch (node.kind) {
+    case 'webhook':    return `${cfg.method} ${cfg.url}`;
+    case 'email_in':  return cfg.mailbox;
+    case 'schedule':  return `${cfg.cron} · ${cfg.label}`;
+    case 'classify':  return `${cfg.model} · ${cfg.prompt.substring(0,34)}…`;
+    case 'summarize': return `${cfg.model} · max ${cfg.maxTokens} tokens`;
+    case 'generate':  return `${cfg.model} · ${cfg.tone} · t=${cfg.temperature}`;
+    case 'send_email':return `To: ${cfg.to || '(vazio)'} · ${cfg.subject}`;
+    case 'slack':     return `${cfg.channel} · ${cfg.mention}`;
+    case 'database':  return `${cfg.table} @ postgres`;
+    case 'condition': return `${cfg.field} ${cfg.operator} "${cfg.value}"`;
+    case 'switch':    return `${cfg.field} → ${cfg.cases}`;
+    default:          return '';
+  }
+}
+
+// ─── RENDER ──────────────────────────────────────────────────
+function wf() { return workflows[currentWf]; }
+
+function renderAll() {
+  const canvas = getCanvas();
+  // remove old nodes
+  canvas.querySelectorAll('.node').forEach(el => el.remove());
+  // render nodes
+  wf().nodes.forEach(n => renderNode(n));
+  // render connections
+  renderConnections();
+}
+
+function renderNode(node) {
+  const def = NODE_DEFS[node.kind];
+  const el = document.createElement('div');
+  el.className = 'node' + (selectedNodeId === node.id ? ' selected' : '');
+  el.id = 'node-' + node.id;
+  el.style.left = node.x + 'px';
+  el.style.top  = node.y + 'px';
+
+  el.innerHTML = `
+    <div class="node-header" style="background:${def.color}22; border-bottom:1px solid ${def.color}33;">
+      <div class="node-header-icon" style="background:${def.color}33;">${ICONS[def.icon]}</div>
+      <span class="node-header-label" style="color:${def.color == '#3B82F6' ? '#93c5fd' : def.color == '#8B5CF6' ? '#c4b5fd' : def.color == '#10B981' ? '#6ee7b7' : '#fcd34d'}">${def.label}</span>
+    </div>
+    <div class="node-body">
+      <div class="node-body-preview">${getNodeBodyPreview(node)}</div>
+    </div>
+    <div class="port port-in" data-node="${node.id}" data-port="in"></div>
+    <div class="port port-out" data-node="${node.id}" data-port="out"></div>
+  `;
+
+  // node click to select
+  el.addEventListener('mousedown', (e) => {
+    if (e.target.classList.contains('port')) return;
+    e.stopPropagation();
+    startNodeDrag(e, node.id);
+    selectNode(node.id);
+  });
+
+  // port mousedown
+  el.querySelectorAll('.port').forEach(p => {
+    p.addEventListener('mousedown', (e) => {
+      e.stopPropagation();
+      if (p.dataset.port === 'out') {
+        startConnectionDraw(e, node.id);
+      }
+    });
+  });
+
+  getCanvas().appendChild(el);
+}
+
+function updateNodeEl(node) {
+  const el = document.getElementById('node-' + node.id);
+  if (!el) return;
+  el.style.left = node.x + 'px';
+  el.style.top  = node.y + 'px';
+  const preview = el.querySelector('.node-body-preview');
+  if (preview) preview.textContent = getNodeBodyPreview(node);
+}
+
+// ─── CONNECTIONS ─────────────────────────────────────────────
+function renderConnections() {
+  const svg = getSvg();
+  // remove all existing connection paths
+  svg.querySelectorAll('path.connection').forEach(p => p.remove());
+  wf().connections.forEach(conn => renderConnection(conn));
+}
+
+function renderConnection(conn) {
+  const svg = getSvg();
+  const srcNode = wf().nodes.find(n => n.id === conn.from);
+  if (!srcNode) return;
+  const srcEl = document.getElementById('node-' + conn.from);
+  const dstEl = document.getElementById('node-' + conn.to);
+  if (!srcEl || !dstEl) return;
+  const outPort = srcEl.querySelector('.port-out');
+  const inPort  = dstEl.querySelector('.port-in');
+  if (!outPort || !inPort) return;
+  const p1 = getPortCenter(outPort);
+  const p2 = getPortCenter(inPort);
+  const def = NODE_DEFS[srcNode.kind];
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute('class', 'connection');
+  path.setAttribute('d', getBezierPath(p1.x, p1.y, p2.x, p2.y));
+  path.setAttribute('stroke', def.color);
+  path.setAttribute('stroke-opacity', '0.6');
+  path.setAttribute('stroke-width', '2');
+  path.setAttribute('fill', 'none');
+  path.setAttribute('stroke-linecap', 'round');
+  path.style.pointerEvents = 'stroke';
+  path.dataset.connId = conn.id;
+  path.addEventListener('click', (e) => {
+    e.stopPropagation();
+    deleteConnection(conn.id);
+  });
+  svg.appendChild(path);
+}
+
+function deleteConnection(connId) {
+  wf().connections = wf().connections.filter(c => c.id !== connId);
+  renderConnections();
+}
+
+function refreshConnections() {
+  // re-render all connection paths (positions may have changed)
+  renderConnections();
+}
+
+// ─── NODE DRAG ───────────────────────────────────────────────
+function startNodeDrag(e, nodeId) {
+  if (e.button !== 0) return;
+  const node = wf().nodes.find(n => n.id === nodeId);
+  if (!node) return;
+  draggingNode = node;
+  const el = document.getElementById('node-' + nodeId);
+  const canvasRect = getCanvas().getBoundingClientRect();
+  dragOffX = e.clientX - (canvasRect.left + node.x);
+  dragOffY = e.clientY - (canvasRect.top  + node.y);
+}
+
+document.addEventListener('mousemove', (e) => {
+  if (draggingNode) {
+    const canvasRect = getCanvas().getBoundingClientRect();
+    draggingNode.x = e.clientX - canvasRect.left - dragOffX;
+    draggingNode.y = e.clientY - canvasRect.top  - dragOffY;
+    updateNodeEl(draggingNode);
+    refreshConnections();
+  }
+  if (drawingConn && tempPath) {
+    const svg = getSvg();
+    const svgRect = svg.getBoundingClientRect();
+    const srcEl = document.getElementById('node-' + connSrcNodeId);
+    if (!srcEl) return;
+    const outPort = srcEl.querySelector('.port-out');
+    const p1 = getPortCenter(outPort);
+    const mx = e.clientX - svgRect.left;
+    const my = e.clientY - svgRect.top;
+    tempPath.setAttribute('d', getBezierPath(p1.x, p1.y, mx, my));
+  }
+});
+
+document.addEventListener('mouseup', (e) => {
+  if (draggingNode) {
+    draggingNode = null;
+  }
+  if (drawingConn) {
+    // check if we released on a port-in
+    const target = document.elementFromPoint(e.clientX, e.clientY);
+    if (target && target.classList.contains('port-in')) {
+      const toNodeId = target.dataset.node;
+      if (toNodeId && toNodeId !== connSrcNodeId) {
+        // avoid duplicate
+        const exists = wf().connections.find(c => c.from === connSrcNodeId && c.to === toNodeId);
+        if (!exists) {
+          wf().connections.push({ id: 'c' + Date.now(), from: connSrcNodeId, to: toNodeId });
+        }
+      }
+    }
+    if (tempPath) { tempPath.remove(); tempPath = null; }
+    drawingConn = false;
+    connSrcNodeId = null;
+    renderConnections();
+  }
+});
+
+// ─── CONNECTION DRAW ─────────────────────────────────────────
+function startConnectionDraw(e, nodeId) {
+  if (e.button !== 0) return;
+  drawingConn = true;
+  connSrcNodeId = nodeId;
+  const svg = getSvg();
+  const srcEl = document.getElementById('node-' + nodeId);
+  const outPort = srcEl.querySelector('.port-out');
+  const p1 = getPortCenter(outPort);
+  const srcNode = wf().nodes.find(n => n.id === nodeId);
+  const def = NODE_DEFS[srcNode.kind];
+  tempPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  tempPath.setAttribute('d', getBezierPath(p1.x, p1.y, p1.x, p1.y));
+  tempPath.setAttribute('stroke', def.color);
+  tempPath.setAttribute('stroke-opacity', '0.5');
+  tempPath.setAttribute('stroke-width', '2');
+  tempPath.setAttribute('fill', 'none');
+  tempPath.setAttribute('stroke-dasharray', '6,4');
+  svg.appendChild(tempPath);
+}
+
+// ─── SELECT / CONFIG PANEL ───────────────────────────────────
+function selectNode(nodeId) {
+  selectedNodeId = nodeId;
+  document.querySelectorAll('.node').forEach(el => el.classList.remove('selected'));
+  const el = document.getElementById('node-' + nodeId);
+  if (el) el.classList.add('selected');
+  openConfigPanel(nodeId);
+}
+
+function openConfigPanel(nodeId) {
+  const node = wf().nodes.find(n => n.id === nodeId);
+  if (!node) return;
+  const def = NODE_DEFS[node.kind];
+  document.getElementById('config-panel-title').textContent = def.label;
+  const body = document.getElementById('config-panel-body');
+  body.innerHTML = '';
+  // generate fields from config
+  Object.entries(node.config).forEach(([key, val]) => {
+    const label = key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').trim();
+    const field = document.createElement('div');
+    field.className = 'config-field';
+    let inputHtml;
+    if (typeof val === 'boolean') {
+      inputHtml = `<select data-key="${key}">
+        <option value="true" ${val ? 'selected' : ''}>true</option>
+        <option value="false" ${!val ? 'selected' : ''}>false</option>
+      </select>`;
+    } else if (key === 'prompt' || key === 'message' || key === 'cases') {
+      inputHtml = `<textarea data-key="${key}">${val}</textarea>`;
+    } else {
+      inputHtml = `<input type="text" data-key="${key}" value="${val}">`;
+    }
+    field.innerHTML = `<label>${label}</label>${inputHtml}`;
+    body.appendChild(field);
+  });
+  // listen for changes
+  body.querySelectorAll('input, textarea, select').forEach(input => {
+    input.addEventListener('input', () => {
+      const key = input.dataset.key;
+      let v = input.value;
+      if (input.tagName === 'SELECT') v = v === 'true';
+      node.config[key] = v;
+      updateNodeEl(node);
+    });
+  });
+  document.getElementById('config-panel').classList.add('open');
+}
+
+function closeConfigPanel() {
+  document.getElementById('config-panel').classList.remove('open');
+  selectedNodeId = null;
+  document.querySelectorAll('.node').forEach(el => el.classList.remove('selected'));
+}
+window.closeConfigPanel = closeConfigPanel;
+
+function deleteNode() {
+  if (!selectedNodeId) return;
+  wf().nodes = wf().nodes.filter(n => n.id !== selectedNodeId);
+  wf().connections = wf().connections.filter(c => c.from !== selectedNodeId && c.to !== selectedNodeId);
+  document.getElementById('node-' + selectedNodeId)?.remove();
+  closeConfigPanel();
+  renderConnections();
+}
+window.deleteNode = deleteNode;
+
+// click on canvas to deselect
+document.getElementById('canvas-wrap').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget || e.target.id === 'canvas-bg' || e.target.id === 'canvas') {
+    closeConfigPanel();
+  }
+});
+
+// ─── PALETTE DRAG ────────────────────────────────────────────
+function buildPalette() {
+  const groups = {
+    'Triggers': ['webhook', 'email_in', 'schedule'],
+    'IA':       ['classify', 'summarize', 'generate'],
+    'Ações':    ['send_email', 'slack', 'database'],
+    'Filtros':  ['condition', 'switch'],
+  };
+  const palette = document.getElementById('palette');
+  palette.innerHTML = '';
+  Object.entries(groups).forEach(([groupName, kinds]) => {
+    const g = document.createElement('div');
+    g.className = 'palette-group';
+    g.innerHTML = `<div class="palette-group-label">${groupName}</div>`;
+    kinds.forEach(kind => {
+      const def = NODE_DEFS[kind];
+      const item = document.createElement('div');
+      item.className = 'palette-node';
+      item.draggable = true;
+      item.dataset.kind = kind;
+      item.innerHTML = `
+        <div class="palette-node-icon ${def.colorClass}">${ICONS[def.icon]}</div>
+        <span class="palette-node-label">${def.label}</span>
+      `;
+      item.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('kind', kind);
+        e.dataTransfer.effectAllowed = 'copy';
+      });
+      g.appendChild(item);
+    });
+    palette.appendChild(g);
+  });
+}
+
+const canvasWrap = document.getElementById('canvas-wrap');
+canvasWrap.addEventListener('dragover', (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; });
+canvasWrap.addEventListener('drop', (e) => {
+  e.preventDefault();
+  const kind = e.dataTransfer.getData('kind');
+  if (!kind) return;
+  const canvasRect = getCanvas().getBoundingClientRect();
+  const x = e.clientX - canvasRect.left - 95;
+  const y = e.clientY - canvasRect.top  - 40;
+  addNode(kind, x, y);
+});
+
+function addNode(kind, x, y) {
+  const def = NODE_DEFS[kind];
+  const node = {
+    id: uid(),
+    kind,
+    x: Math.max(10, x),
+    y: Math.max(10, y),
+    config: { ...def.defaultConfig },
+  };
+  wf().nodes.push(node);
+  renderNode(node);
+  selectNode(node.id);
+}
+
+// ─── WORKFLOW TABS ────────────────────────────────────────────
+function switchWorkflow(idx) {
+  currentWf = idx;
+  workflows[idx] && (document.getElementById('workflow-name-input').value = workflows[idx].name);
+  document.querySelectorAll('.workflow-tab').forEach((t, i) => {
+    t.classList.toggle('active', i === idx);
+  });
+  closeConfigPanel();
+  renderAll();
+}
+
+document.getElementById('workflow-name-input').addEventListener('input', (e) => {
+  wf().name = e.target.value;
+  const tab = document.querySelectorAll('.workflow-tab')[currentWf];
+  if (tab) tab.textContent = e.target.value;
+});
+
+function newWorkflow() {
+  const idx = workflows.length;
+  workflows.push({ name: 'Novo Workflow', nodes: [], connections: [] });
+  const tabs = document.getElementById('sidebar-tabs');
+  const btn = document.getElementById('btn-new-workflow');
+  const tab = document.createElement('div');
+  tab.className = 'workflow-tab';
+  tab.dataset.wf = idx;
+  tab.onclick = () => switchWorkflow(idx);
+  tab.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg> Novo Workflow`;
+  tabs.insertBefore(tab, btn);
+  switchWorkflow(idx);
+}
+window.newWorkflow = newWorkflow;
+
+// ─── EXECUTION LOG ───────────────────────────────────────────
+function openLog() {
+  document.getElementById('log-panel').classList.add('open');
+  document.getElementById('layout').classList.add('log-open');
+}
+function closeLog() {
+  document.getElementById('log-panel').classList.remove('open');
+  document.getElementById('layout').classList.remove('log-open');
+}
+window.closeLog = closeLog;
+
+function clearLog() {
+  document.getElementById('log-entries').innerHTML = '';
+}
+
+function addLogEntry(id, status, msg, json) {
+  const entries = document.getElementById('log-entries');
+  const ts = new Date().toLocaleTimeString('pt-BR', { hour12: false });
+  const statusClass = status === 'running' ? 'running' : status === 'done' ? 'done' : 'info';
+  const statusLabel = status === 'running' ? 'executando' : status === 'done' ? 'concluído' : 'info';
+  const existing = document.getElementById('logentry-' + id);
+  if (existing) {
+    existing.innerHTML = buildLogEntryHTML(ts, statusClass, statusLabel, msg, json);
+    return;
+  }
+  const wrap = document.createElement('div');
+  wrap.className = 'log-entry-wrap';
+  wrap.id = 'logentry-' + id;
+  wrap.innerHTML = buildLogEntryHTML(ts, statusClass, statusLabel, msg, json);
+  entries.appendChild(wrap);
+  entries.scrollTop = entries.scrollHeight;
+}
+
+function buildLogEntryHTML(ts, statusClass, statusLabel, msg, json) {
+  let jsonPart = '';
+  if (json) {
+    const jsonStr = JSON.stringify(json, null, 2);
+    const toggleId = 'json-' + Math.random().toString(36).slice(2);
+    jsonPart = `<span class="log-json-toggle" onclick="document.getElementById('${toggleId}').classList.toggle('visible')">ver JSON</span>
+      <div class="log-json-block" id="${toggleId}">${jsonStr}</div>`;
+  }
+  return `<div class="log-entry">
+    <span class="log-ts">${ts}</span>
+    <span class="log-status ${statusClass}">${statusLabel}</span>
+    <div class="log-msg">
+      <div>${msg}</div>
+      ${jsonPart}
+    </div>
+  </div>`;
+}
+
+// ─── TOPOLOGICAL SORT ────────────────────────────────────────
+function topoSort(nodes, connections) {
+  const inDegree = {};
+  const adj = {};
+  nodes.forEach(n => { inDegree[n.id] = 0; adj[n.id] = []; });
+  connections.forEach(c => {
+    if (adj[c.from]) adj[c.from].push(c.to);
+    if (c.to in inDegree) inDegree[c.to]++;
+  });
+  const queue = nodes.filter(n => inDegree[n.id] === 0).map(n => n.id);
+  const result = [];
+  while (queue.length) {
+    const id = queue.shift();
+    result.push(id);
+    (adj[id] || []).forEach(nid => {
+      inDegree[nid]--;
+      if (inDegree[nid] === 0) queue.push(nid);
+    });
+  }
+  // add any remaining (cycles or disconnected)
+  nodes.forEach(n => { if (!result.includes(n.id)) result.push(n.id); });
+  return result.map(id => nodes.find(n => n.id === id)).filter(Boolean);
+}
+
+// ─── EXECUTE ─────────────────────────────────────────────────
+async function executeWorkflow() {
+  if (isExecuting) return;
+  if (wf().nodes.length === 0) {
+    alert('Adicione nodes ao workflow antes de executar.');
+    return;
+  }
+  isExecuting = true;
+  const btn = document.getElementById('btn-execute');
+  btn.classList.add('executing');
+  btn.innerHTML = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9" stroke-dasharray="30 10" stroke-linecap="round"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/></circle></svg> Executando...`;
+  clearLog();
+  openLog();
+
+  const order = topoSort(wf().nodes, wf().connections);
+  const delays = { trigger: 400, ia: 1200, action: 700, filter: 500 };
+
+  for (const node of order) {
+    const def = NODE_DEFS[node.kind];
+    const el = document.getElementById('node-' + node.id);
+    // set executing
+    if (el) {
+      el.classList.remove('completed');
+      el.classList.add('executing');
+    }
+    addLogEntry('exec-' + node.id, 'running', `${def.label} — processando`);
+    const delay = delays[def.type] + Math.random() * 400;
+    await sleep(delay);
+    // done
+    if (el) {
+      el.classList.remove('executing');
+      el.classList.add('completed');
+      showNodeTooltip(node, el);
+    }
+    const output = MOCK_OUTPUT[node.kind] || {};
+    addLogEntry('exec-' + node.id, 'done', `${def.label} — concluído`, output);
+  }
+
+  addLogEntry('wf-done', 'info', `Workflow "${wf().name}" executado com sucesso. ${order.length} nodes processados.`);
+
+  btn.classList.remove('executing');
+  btn.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><polygon points="5,3 19,12 5,21"/></svg> Executar`;
+  isExecuting = false;
+}
+window.executeWorkflow = executeWorkflow;
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function showNodeTooltip(node, el) {
+  // remove existing
+  el.querySelectorAll('.node-tooltip').forEach(t => t.remove());
+  const output = MOCK_OUTPUT[node.kind] || {};
+  const lines = JSON.stringify(output, null, 2).split('\n').slice(0, 6).join('\n');
+  const tooltip = document.createElement('div');
+  tooltip.className = 'node-tooltip';
+  tooltip.textContent = lines + (JSON.stringify(output, null, 2).split('\n').length > 6 ? '\n...' : '');
+  el.appendChild(tooltip);
+  setTimeout(() => tooltip.remove(), 4000);
+}
+
+// ─── PRESETS ─────────────────────────────────────────────────
+function buildPreset1() {
+  // "Triagem de Emails"
+  const nodes = [
+    { id: uid(), kind: 'email_in',  x: 40,  y: 120, config: { ...NODE_DEFS.email_in.defaultConfig } },
+    { id: uid(), kind: 'classify',  x: 280, y: 120, config: { ...NODE_DEFS.classify.defaultConfig } },
+    { id: uid(), kind: 'condition', x: 520, y: 120, config: { ...NODE_DEFS.condition.defaultConfig } },
+    { id: uid(), kind: 'slack',     x: 760, y: 40,  config: { ...NODE_DEFS.slack.defaultConfig, channel: '#alertas', message: 'Email urgente recebido!' } },
+    { id: uid(), kind: 'database',  x: 760, y: 220, config: { ...NODE_DEFS.database.defaultConfig } },
+  ];
+  const connections = [
+    { id: 'c1', from: nodes[0].id, to: nodes[1].id },
+    { id: 'c2', from: nodes[1].id, to: nodes[2].id },
+    { id: 'c3', from: nodes[2].id, to: nodes[3].id },
+    { id: 'c4', from: nodes[2].id, to: nodes[4].id },
+  ];
+  return { nodes, connections };
+}
+
+function buildPreset2() {
+  // "Gerador de Relatórios"
+  const nodes = [
+    { id: uid(), kind: 'schedule',   x: 40,  y: 160, config: { ...NODE_DEFS.schedule.defaultConfig } },
+    { id: uid(), kind: 'summarize',  x: 280, y: 160, config: { ...NODE_DEFS.summarize.defaultConfig } },
+    { id: uid(), kind: 'generate',   x: 520, y: 160, config: { ...NODE_DEFS.generate.defaultConfig } },
+    { id: uid(), kind: 'send_email', x: 760, y: 160, config: { ...NODE_DEFS.send_email.defaultConfig, to: 'equipe@empresa.com', subject: 'Relatório Diário' } },
+  ];
+  const connections = [
+    { id: 'c1', from: nodes[0].id, to: nodes[1].id },
+    { id: 'c2', from: nodes[1].id, to: nodes[2].id },
+    { id: 'c3', from: nodes[2].id, to: nodes[3].id },
+  ];
+  return { nodes, connections };
+}
+
+// ─── INIT ─────────────────────────────────────────────────────
+function init() {
+  buildPalette();
+  const p1 = buildPreset1();
+  workflows[0].nodes = p1.nodes;
+  workflows[0].connections = p1.connections;
+  const p2 = buildPreset2();
+  workflows[1].nodes = p2.nodes;
+  workflows[1].connections = p2.connections;
+  renderAll();
+}
+
+// wait for DOM+fonts
+document.addEventListener('DOMContentLoaded', () => {
+  // slight delay so SVG is fully laid out
+  setTimeout(init, 80);
+});
+</script>
+</body>
+</html>
