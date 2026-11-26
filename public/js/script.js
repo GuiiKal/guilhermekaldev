@@ -140,6 +140,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // ─── Mobile hero reveal ──────────────────────────────────
+    if (isMobile) {
+        const hero = document.getElementById('hero');
+        if (hero) {
+            const heroReveals = hero.querySelectorAll('.reveal');
+            heroReveals.forEach(el => el.classList.add('visible'));
+        }
+    }
+
     // ─── Remaining sections — scroll-triggered reveals ─────────
     sections.forEach((section, i) => {
         if (section.id === 'hero') return; // hero handled above
