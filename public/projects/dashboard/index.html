@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flowly Analytics — Dashboard</title>
+  <link rel="icon" href="../../img/favicon-gk.jpeg" type="image/jpeg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0f0f13;
+      --bg-sidebar: #111117;
+      --bg-card: #1a1a24;
+      --bg-hover: #22222e;
+      --text: #e4e4e7;
+      --muted: rgba(228,228,231,0.45);
+      --blue: #3b82f6;
+      --green: #10b981;
+      --amber: #f59e0b;
+      --violet: #8b5cf6;
+      --red: #ef4444;
+      --border: rgba(255,255,255,0.07);
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 14px; overflow-x: hidden; }
+
+    .back-link {
+      position: fixed; bottom: 20px; left: 20px; z-index: 100;
+      font-size: 0.72rem; letter-spacing: 0.06em; color: var(--muted);
+      backdrop-filter: blur(8px); background: rgba(15,15,19,0.8); padding: 8px 14px;
+      border-radius: 16px; border: 1px solid var(--border); text-decoration: none; transition: all 0.3s;
+    }
+    .back-link:hover { color: var(--blue); border-color: var(--blue); }
+
+    /* Layout */
+    .app { display: grid; grid-template-columns: 240px 1fr; grid-template-rows: 56px 1fr; min-height: 100vh; }
+
+    /* Topbar */
+    .topbar {
+      grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; background: var(--bg-sidebar); border-bottom: 1px solid var(--border); z-index: 10;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 12px; }
+    .topbar-logo { font-weight: 700; font-size: 1rem; color: var(--text); }
+    .topbar-logo span { color: var(--violet); }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .topbar-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--violet), var(--blue));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; font-weight: 600; color: white;
+    }
+    .topbar-name { font-size: 0.82rem; color: var(--muted); }
+    .hamburger-dash { display: none; background: none; border: none; cursor: pointer; padding: 4px; }
+    .hamburger-dash span { display: block; width: 20px; height: 2px; background: var(--text); margin: 4px 0; }
+
+    /* Sidebar */
+    .sidebar {
+      background: var(--bg-sidebar); border-right: 1px solid var(--border);
+      padding: 20px 0; display: flex; flex-direction: column; gap: 4px;
+    }
+    .sidebar-item {
+      display: flex; align-items: center; gap: 12px; padding: 10px 24px;
+      color: var(--muted); font-size: 0.82rem; font-weight: 500;
+      text-decoration: none; transition: all 0.2s; border-left: 2px solid transparent; cursor: pointer;
+    }
+    .sidebar-item:hover { color: var(--text); background: rgba(255,255,255,0.03); }
+    .sidebar-item.active { color: var(--text); background: rgba(139,92,246,0.08); border-left-color: var(--violet); }
+    .sidebar-icon { width: 20px; display: flex; align-items: center; justify-content: center; }
+
+    /* Main */
+    .main { padding: 24px; overflow-y: auto; }
+    .main-header { margin-bottom: 24px; }
+    .main-header h1 { font-size: 1.4rem; font-weight: 700; margin-bottom: 4px; }
+    .main-header p { font-size: 0.82rem; color: var(--muted); }
+
+    /* Page views */
+    .page-view { display: none; }
+    .page-view.active { display: block; }
+
+    /* KPI Cards */
+    .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .kpi-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 20px; transition: all 0.3s;
+    }
+    .kpi-card:hover { border-color: rgba(255,255,255,0.12); transform: translateY(-2px); }
+    .kpi-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+    .kpi-value { font-size: 1.6rem; font-weight: 700; margin-bottom: 6px; }
+    .kpi-change { font-size: 0.72rem; font-weight: 600; }
+    .kpi-change.up { color: var(--green); }
+    .kpi-change.down { color: var(--red); }
+
+    /* Charts grid */
+    .charts-row { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 24px; }
+    .chart-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 20px;
+    }
+    .chart-title { font-size: 0.85rem; font-weight: 600; margin-bottom: 16px; }
+
+    /* Table */
+    .table-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 20px; margin-bottom: 24px;
+    }
+    .table-title { font-size: 0.85rem; font-weight: 600; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+    td { padding: 12px; font-size: 0.82rem; border-bottom: 1px solid rgba(255,255,255,0.03); }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+    .badge {
+      display: inline-block; padding: 3px 10px; border-radius: 10px;
+      font-size: 0.68rem; font-weight: 600; letter-spacing: 0.03em;
+    }
+    .badge-green { background: rgba(16,185,129,0.12); color: var(--green); }
+    .badge-amber { background: rgba(245,158,11,0.12); color: var(--amber); }
+    .badge-red { background: rgba(239,68,68,0.12); color: var(--red); }
+    .badge-blue { background: rgba(59,130,246,0.12); color: var(--blue); }
+    .badge-violet { background: rgba(139,92,246,0.12); color: var(--violet); }
+
+    /* Bottom row */
+    .bottom-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+
+    /* Report cards */
+    .report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+    .report-item {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 24px; transition: all 0.3s;
+    }
+    .report-item:hover { border-color: rgba(255,255,255,0.12); transform: translateY(-2px); }
+    .report-item-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+    .report-item-title { font-size: 0.9rem; font-weight: 600; }
+    .report-item-period { font-size: 0.68rem; color: var(--muted); }
+    .report-item-value { font-size: 1.8rem; font-weight: 700; margin-bottom: 4px; }
+    .report-item-sub { font-size: 0.75rem; color: var(--muted); }
+    .report-bar { height: 4px; border-radius: 2px; background: rgba(255,255,255,0.06); margin-top: 16px; overflow: hidden; }
+    .report-bar-fill { height: 100%; border-radius: 2px; }
+
+    /* Client cards */
+    .client-row {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 16px 20px; margin-bottom: 8px; display: flex; align-items: center; gap: 16px;
+      transition: all 0.3s;
+    }
+    .client-row:hover { border-color: rgba(255,255,255,0.12); }
+    .client-avatar {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 700; color: white; flex-shrink: 0;
+    }
+    .client-info { flex: 1; min-width: 0; }
+    .client-name { font-size: 0.88rem; font-weight: 600; margin-bottom: 2px; }
+    .client-detail { font-size: 0.72rem; color: var(--muted); }
+    .client-stats { display: flex; gap: 24px; }
+    .client-stat { text-align: right; }
+    .client-stat-value { font-size: 0.88rem; font-weight: 600; }
+    .client-stat-label { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .search-input {
+      width: 100%; max-width: 320px; padding: 8px 14px; border-radius: 8px;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: var(--text);
+      font-family: 'Inter', sans-serif; font-size: 0.82rem; outline: none; transition: border-color 0.3s;
+    }
+    .search-input:focus { border-color: var(--violet); }
+    .search-input::placeholder { color: var(--muted); }
+    .filter-row { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+    .filter-chip {
+      padding: 6px 14px; border-radius: 16px; font-size: 0.72rem; font-weight: 500;
+      border: 1px solid var(--border); background: transparent; color: var(--muted);
+      cursor: pointer; transition: all 0.2s;
+    }
+    .filter-chip:hover { border-color: rgba(255,255,255,0.15); color: var(--text); }
+    .filter-chip.active { border-color: var(--violet); color: var(--violet); background: rgba(139,92,246,0.08); }
+
+    /* Footer */
+    .dash-footer { text-align: center; padding: 16px; font-size: 0.7rem; color: var(--muted); }
+    .dash-footer a { color: var(--violet); text-decoration: none; }
+
+    /* Fade in */
+    .fade-in { opacity: 0; transform: translateY(12px); animation: fadeUp 0.5s ease forwards; }
+    @keyframes fadeUp { to { opacity: 1; transform: none; } }
+    .fade-in:nth-child(1) { animation-delay: 0.05s; }
+    .fade-in:nth-child(2) { animation-delay: 0.1s; }
+    .fade-in:nth-child(3) { animation-delay: 0.15s; }
+    .fade-in:nth-child(4) { animation-delay: 0.2s; }
+
+    /* Mobile */
+    @media (max-width: 900px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .sidebar.open { display: flex; position: fixed; top: 56px; left: 0; bottom: 0; width: 240px; z-index: 20; }
+      .hamburger-dash { display: block; }
+      .kpi-row { grid-template-columns: repeat(2, 1fr); }
+      .charts-row, .bottom-row, .report-grid { grid-template-columns: 1fr; }
+      .client-stats { display: none; }
+    }
+    @media (max-width: 500px) {
+      .kpi-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <a href="../../index.html#portfolio" class="back-link">← Voltar ao portfólio</a>
+
+  <div class="app">
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger-dash" id="menuToggle" aria-label="Menu"><span></span><span></span><span></span></button>
+        <div class="topbar-logo"><span>●</span> Flowly Analytics</div>
+      </div>
+      <div class="topbar-right">
+        <span class="topbar-name">Admin</span>
+        <div class="topbar-avatar">FA</div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <a class="sidebar-item active" data-page="dashboard"><span class="sidebar-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="8" width="3" height="7" rx="0.5"/><rect x="6.5" y="4" width="3" height="11" rx="0.5"/><rect x="12" y="1" width="3" height="14" rx="0.5"/></svg></span> Dashboard</a>
+      <a class="sidebar-item" data-page="relatorios"><span class="sidebar-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="1" width="12" height="14" rx="1.5"/><line x1="5" y1="5" x2="11" y2="5"/><line x1="5" y1="8" x2="11" y2="8"/><line x1="5" y1="11" x2="9" y2="11"/></svg></span> Relatórios</a>
+      <a class="sidebar-item" data-page="clientes"><span class="sidebar-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="5" r="3"/><circle cx="11" cy="6" r="2.5"/><path d="M1 14c0-3 2.5-5 5-5s5 2 5 5"/><path d="M11 14c0-2 1.2-3.5 3-3.5"/></svg></span> Clientes</a>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+
+      <!-- ═══ PAGE: Dashboard ═══ -->
+      <div class="page-view active" id="page-dashboard">
+        <div class="main-header">
+          <h1>Dashboard</h1>
+          <p>Métricas da plataforma — Novembro 2026</p>
+        </div>
+
+        <div class="kpi-row">
+          <div class="kpi-card fade-in">
+            <div class="kpi-label">Usuários ativos</div>
+            <div class="kpi-value" style="color: var(--blue);">8.421</div>
+            <div class="kpi-change up">↑ 14% vs mês anterior</div>
+          </div>
+          <div class="kpi-card fade-in">
+            <div class="kpi-label">MRR</div>
+            <div class="kpi-value" style="color: var(--green);">R$ 184.6k</div>
+            <div class="kpi-change up">↑ 9% vs mês anterior</div>
+          </div>
+          <div class="kpi-card fade-in">
+            <div class="kpi-label">Churn Rate</div>
+            <div class="kpi-value" style="color: var(--violet);">2.1%</div>
+            <div class="kpi-change up">↓ 0.3% vs mês anterior</div>
+          </div>
+          <div class="kpi-card fade-in">
+            <div class="kpi-label">NPS</div>
+            <div class="kpi-value" style="color: var(--amber);">72</div>
+            <div class="kpi-change up">↑ 4 pts vs mês anterior</div>
+          </div>
+        </div>
+
+        <div class="charts-row">
+          <div class="chart-card fade-in">
+            <div class="chart-title">Crescimento de usuários</div>
+            <canvas id="lineChart" height="220"></canvas>
+          </div>
+          <div class="chart-card fade-in">
+            <div class="chart-title">Planos ativos</div>
+            <canvas id="barChart" height="220"></canvas>
+          </div>
+        </div>
+
+        <div class="table-card fade-in">
+          <div class="table-title">Eventos recentes</div>
+          <div style="overflow-x: auto;">
+            <table>
+              <thead>
+                <tr><th>Evento</th><th>Usuário</th><th>Plano</th><th>Data</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Upgrade de plano</td><td>Logística Rápida S.A.</td><td><span class="badge badge-violet">Enterprise</span></td><td>24/11/2026</td></tr>
+                <tr><td>Novo registro</td><td>Café & Brasa Ltda.</td><td><span class="badge badge-blue">Pro</span></td><td>23/11/2026</td></tr>
+                <tr><td>Cancelamento</td><td>Pixel Studio</td><td><span class="badge badge-red">Starter</span></td><td>22/11/2026</td></tr>
+                <tr><td>Novo registro</td><td>Construtora Horizonte</td><td><span class="badge badge-blue">Pro</span></td><td>21/11/2026</td></tr>
+                <tr><td>Upgrade de plano</td><td>Farma Vida</td><td><span class="badge badge-violet">Enterprise</span></td><td>20/11/2026</td></tr>
+                <tr><td>Reativação</td><td>Academia FitPro</td><td><span class="badge badge-green">Pro</span></td><td>19/11/2026</td></tr>
+                <tr><td>Novo registro</td><td>Editora Lumina</td><td><span class="badge badge-blue">Starter</span></td><td>18/11/2026</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="bottom-row">
+          <div class="chart-card fade-in">
+            <div class="chart-title">Uso por funcionalidade</div>
+            <canvas id="doughnutChart" height="200"></canvas>
+          </div>
+          <div class="chart-card fade-in" style="display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="var(--green)" stroke-width="2" style="margin-bottom: 8px;"><circle cx="20" cy="20" r="16"/><circle cx="20" cy="20" r="10"/><circle cx="20" cy="20" r="4" fill="var(--green)"/></svg>
+            <div style="font-size: 1.8rem; font-weight: 700; color: var(--green); margin-bottom: 4px;">91%</div>
+            <div style="font-size: 0.82rem; color: var(--muted);">Meta de retenção Q4</div>
+            <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; margin-top: 16px; overflow: hidden;">
+              <div style="width: 91%; height: 100%; background: linear-gradient(90deg, var(--green), var(--blue)); border-radius: 3px;"></div>
+            </div>
+            <div style="font-size: 0.68rem; color: var(--muted); margin-top: 10px;">Meta: 90% · Atual: 91%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ PAGE: Relatórios ═══ -->
+      <div class="page-view" id="page-relatorios">
+        <div class="main-header">
+          <h1>Relatórios</h1>
+          <p>Resumo de desempenho por período</p>
+        </div>
+
+        <div class="report-grid">
+          <div class="report-item fade-in">
+            <div class="report-item-header">
+              <div class="report-item-title">Receita Recorrente (MRR)</div>
+              <div class="report-item-period">Nov 2026</div>
+            </div>
+            <div class="report-item-value" style="color: var(--green);">R$ 184.600</div>
+            <div class="report-item-sub">Meta mensal: R$ 200.000</div>
+            <div class="report-bar"><div class="report-bar-fill" style="width: 92%; background: var(--green);"></div></div>
+          </div>
+          <div class="report-item fade-in">
+            <div class="report-item-header">
+              <div class="report-item-title">Novas assinaturas</div>
+              <div class="report-item-period">Nov 2026</div>
+            </div>
+            <div class="report-item-value" style="color: var(--blue);">347</div>
+            <div class="report-item-sub">Meta mensal: 400</div>
+            <div class="report-bar"><div class="report-bar-fill" style="width: 87%; background: var(--blue);"></div></div>
+          </div>
+          <div class="report-item fade-in">
+            <div class="report-item-header">
+              <div class="report-item-title">Taxa de Churn</div>
+              <div class="report-item-period">Nov 2026</div>
+            </div>
+            <div class="report-item-value" style="color: var(--violet);">2.1%</div>
+            <div class="report-item-sub">Limite aceitável: 3%</div>
+            <div class="report-bar"><div class="report-bar-fill" style="width: 70%; background: var(--violet);"></div></div>
+          </div>
+          <div class="report-item fade-in">
+            <div class="report-item-header">
+              <div class="report-item-title">Tempo médio de sessão</div>
+              <div class="report-item-period">Nov 2026</div>
+            </div>
+            <div class="report-item-value" style="color: var(--amber);">14m 32s</div>
+            <div class="report-item-sub">Mês anterior: 12m 45s</div>
+            <div class="report-bar"><div class="report-bar-fill" style="width: 78%; background: var(--amber);"></div></div>
+          </div>
+        </div>
+
+        <div class="charts-row">
+          <div class="chart-card fade-in">
+            <div class="chart-title">MRR — Últimos 12 meses</div>
+            <canvas id="reportLineChart" height="220"></canvas>
+          </div>
+          <div class="chart-card fade-in">
+            <div class="chart-title">Assinaturas vs Cancelamentos</div>
+            <canvas id="reportBarChart" height="220"></canvas>
+          </div>
+        </div>
+
+        <div class="table-card fade-in">
+          <div class="table-title">Relatórios disponíveis</div>
+          <div style="overflow-x: auto;">
+            <table>
+              <thead>
+                <tr><th>Relatório</th><th>Período</th><th>Gerado em</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Análise de Retenção Q3</td><td>Jul — Set 2026</td><td>02/10/2026</td><td><span class="badge badge-green">Disponível</span></td></tr>
+                <tr><td>Performance por Plano</td><td>Out 2026</td><td>01/11/2026</td><td><span class="badge badge-green">Disponível</span></td></tr>
+                <tr><td>Relatório de Churn</td><td>Nov 2026</td><td>25/11/2026</td><td><span class="badge badge-green">Disponível</span></td></tr>
+                <tr><td>Projeção de Receita Q1 2027</td><td>Jan — Mar 2027</td><td>—</td><td><span class="badge badge-amber">Em geração</span></td></tr>
+                <tr><td>Análise de Cohort</td><td>2026 completo</td><td>—</td><td><span class="badge badge-amber">Em geração</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ PAGE: Clientes ═══ -->
+      <div class="page-view" id="page-clientes">
+        <div class="main-header">
+          <h1>Clientes</h1>
+          <p>2.047 empresas ativas na plataforma</p>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+          <input type="text" class="search-input" id="clientSearch" placeholder="Buscar por nome ou segmento...">
+          <div class="filter-row" style="margin-bottom: 0;">
+            <button class="filter-chip active" data-filter="todos">Todos</button>
+            <button class="filter-chip" data-filter="enterprise">Enterprise</button>
+            <button class="filter-chip" data-filter="pro">Pro</button>
+            <button class="filter-chip" data-filter="starter">Starter</button>
+          </div>
+        </div>
+
+        <div id="clientList">
+          <div class="client-row fade-in" data-plan="enterprise">
+            <div class="client-avatar" style="background: linear-gradient(135deg, var(--violet), #6d28d9);">LR</div>
+            <div class="client-info">
+              <div class="client-name">Logística Rápida S.A.</div>
+              <div class="client-detail">Transporte e logística · Enterprise · Desde mar/2024</div>
+            </div>
+            <div class="client-stats">
+              <div class="client-stat"><div class="client-stat-value">84</div><div class="client-stat-label">Usuários</div></div>
+              <div class="client-stat"><div class="client-stat-value" style="color: var(--green);">R$ 2.400/mês</div><div class="client-stat-label">Receita</div></div>
+            </div>
+          </div>
+
+          <div class="client-row fade-in" data-plan="pro">
+            <div class="client-avatar" style="background: linear-gradient(135deg, var(--blue), #1d4ed8);">CB</div>
+            <div class="client-info">
+              <div class="client-name">Café & Brasa Ltda.</div>
+              <div class="client-detail">Alimentação · Pro · Desde nov/2026</div>
+            </div>
+            <div class="client-stats">
+              <div class="client-stat"><div class="client-stat-value">12</div><div class="client-stat-label">Usuários</div></div>
+              <div class="client-stat"><div class="client-stat-value" style="color: var(--green);">R$ 490/mês</div><div class="client-stat-label">Receita</div></div>
+            </div>
+          </div>
+
+          <div class="client-row fade-in" data-plan="enterprise">
+            <div class="client-avatar" style="background: linear-gradient(135deg, var(--green), #047857);">CH</div>
+            <div class="client-info">
+              <div class="client-name">Construtora Horizonte</div>
+              <div class="client-detail">Construção civil · Enterprise · Desde jan/2025</div>
+            </div>
+            <div class="client-stats">
+              <div class="client-stat"><div class="client-stat-value">156</div><div class="client-stat-label">Usuários</div></div>
+              <div class="client-stat"><div class="client-stat-value" style="color: var(--green);">R$ 4.800/mês</div><div class="client-stat-label">Receita</div></div>
+            </div>
+          </div>
+
+          <div class="client-row fade-in" data-plan="pro">
+            <div class="client-avatar" style="background: linear-gradient(135deg, var(--amber), #d97706);">FV</div>
+            <div class="client-info">
+              <div class="client-name">Farma Vida</div>
+              <div class="client-detail">Saúde e farmácia · Pro · Desde ago/2025</div>
+            </div>
+            <div class="client-stats">
+              <div class="client-stat"><div class="client-stat-value">28</div><div class="client-stat-label">Usuários</div></div>
+              <div class="client-stat"><div class="client-stat-value" style="color: var(--green);">R$ 490/mês</div><div class="client-stat-label">Receita</div></div>
+            </div>
+          </div>
+
+          <div class="client-row fade-in" data-plan="starter">
+            <div class="client-avatar" style="background: linear-gradient(135deg, var(--red), #b91c1c);">AF</div>
+            <div class="client-info">
+              <div class="client-name">Academia FitPro</div>
+              <div class="client-detail">Fitness · Starter · Desde out/2026</div>
+            </div>
+            <div class="client-stats">
+              <div class="client-stat"><div class="client-stat-value">5</div><div class="client-stat-label">Usuários</div></div>
+              <div class="client-stat"><div class="client-stat-value" style="color: var(--muted);">Grátis</div><div class="client-stat-label">Receita</div></div>
+            </div>
+          </div>
+
+          <div class="client-row fade-in" data-plan="enterprise">
+            <div class="client-avatar" style="background: linear-gradient(135deg, #ec4899, #be185d);">EL</div>
+            <div class="client-info">
+              <div class="client-name">Editora Lumina</div>
+              <div class="client-detail">Editora e mídia · Enterprise · Desde fev/2024</div>
+            </div>
+            <div class="client-stats">
+              <div class="client-stat"><div class="client-stat-value">210</div><div class="client-stat-label">Usuários</div></div>
+              <div class="client-stat"><div class="client-stat-value" style="color: var(--green);">R$ 6.200/mês</div><div class="client-stat-label">Receita</div></div>
+            </div>
+          </div>
+
+          <div class="client-row fade-in" data-plan="pro">
+            <div class="client-avatar" style="background: linear-gradient(135deg, #06b6d4, #0891b2);">RA</div>
+            <div class="client-info">
+              <div class="client-name">Rede Alimenta</div>
+              <div class="client-detail">Varejo alimentar · Pro · Desde jun/2025</div>
+            </div>
+            <div class="client-stats">
+              <div class="client-stat"><div class="client-stat-value">34</div><div class="client-stat-label">Usuários</div></div>
+              <div class="client-stat"><div class="client-stat-value" style="color: var(--green);">R$ 490/mês</div><div class="client-stat-label">Receita</div></div>
+            </div>
+          </div>
+
+          <div class="client-row fade-in" data-plan="starter">
+            <div class="client-avatar" style="background: linear-gradient(135deg, #a3a3a3, #737373);">PS</div>
+            <div class="client-info">
+              <div class="client-name">Pixel Studio</div>
+              <div class="client-detail">Design e criação · Starter · Desde set/2026</div>
+            </div>
+            <div class="client-stats">
+              <div class="client-stat"><div class="client-stat-value">3</div><div class="client-stat-label">Usuários</div></div>
+              <div class="client-stat"><div class="client-stat-value" style="color: var(--muted);">Grátis</div><div class="client-stat-label">Receita</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dash-footer">
+        Dashboard fictício — Desenvolvido por <a href="../../index.html">Guilherme Kal</a>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // ─── Sidebar toggle (mobile) ─────────────────────────
+    document.getElementById('menuToggle')?.addEventListener('click', () => {
+      document.getElementById('sidebar').classList.toggle('open');
+    });
+
+    // ─── Page navigation ─────────────────────────────────
+    const sidebarItems = document.querySelectorAll('.sidebar-item[data-page]');
+    const pageViews = document.querySelectorAll('.page-view');
+    let chartsInitialized = { dashboard: false, relatorios: false };
+
+    function showPage(pageId) {
+      pageViews.forEach(p => p.classList.remove('active'));
+      sidebarItems.forEach(s => s.classList.remove('active'));
+
+      const page = document.getElementById('page-' + pageId);
+      const item = document.querySelector(`[data-page="${pageId}"]`);
+      if (page) page.classList.add('active');
+      if (item) item.classList.add('active');
+
+      // Close mobile sidebar
+      document.getElementById('sidebar').classList.remove('open');
+
+      // Init charts lazily
+      if (pageId === 'dashboard' && !chartsInitialized.dashboard) {
+        initDashboardCharts();
+        chartsInitialized.dashboard = true;
+      }
+      if (pageId === 'relatorios' && !chartsInitialized.relatorios) {
+        initReportCharts();
+        chartsInitialized.relatorios = true;
+      }
+    }
+
+    sidebarItems.forEach(item => {
+      item.addEventListener('click', () => showPage(item.dataset.page));
+    });
+
+    // ─── Chart defaults ──────────────────────────────────
+    Chart.defaults.color = 'rgba(228,228,231,0.45)';
+    Chart.defaults.borderColor = 'rgba(255,255,255,0.05)';
+    Chart.defaults.font.family = 'Inter';
+    const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+    // ─── Dashboard charts ────────────────────────────────
+    function initDashboardCharts() {
+      new Chart(document.getElementById('lineChart'), {
+        type: 'line',
+        data: {
+          labels: months,
+          datasets: [{
+            label: 'Usuários ativos',
+            data: [3200, 3580, 4010, 4390, 4820, 5340, 5810, 6270, 6890, 7420, 7960, 8421],
+            borderColor: '#3b82f6',
+            backgroundColor: (ctx) => {
+              const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 220);
+              g.addColorStop(0, 'rgba(59,130,246,0.25)');
+              g.addColorStop(1, 'rgba(59,130,246,0)');
+              return g;
+            },
+            fill: true, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#3b82f6', borderWidth: 2,
+          }]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: false, ticks: { callback: v => (v/1000).toFixed(1) + 'k' } } } }
+      });
+
+      new Chart(document.getElementById('barChart'), {
+        type: 'bar',
+        data: {
+          labels: ['Starter', 'Pro', 'Enterprise'],
+          datasets: [{
+            data: [890, 940, 217],
+            backgroundColor: ['#f59e0b', '#3b82f6', '#8b5cf6'],
+            borderRadius: 6, maxBarThickness: 50,
+          }]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+      });
+
+      new Chart(document.getElementById('doughnutChart'), {
+        type: 'doughnut',
+        data: {
+          labels: ['Kanban', 'Automações', 'Analytics', 'Integrações'],
+          datasets: [{
+            data: [38, 27, 22, 13],
+            backgroundColor: ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b'],
+            borderWidth: 0, spacing: 3,
+          }]
+        },
+        options: {
+          responsive: true, cutout: '65%',
+          plugins: { legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true, pointStyle: 'circle' } } }
+        }
+      });
+    }
+
+    // ─── Report charts ───────────────────────────────────
+    function initReportCharts() {
+      new Chart(document.getElementById('reportLineChart'), {
+        type: 'line',
+        data: {
+          labels: months,
+          datasets: [{
+            label: 'MRR (R$)',
+            data: [98000, 105000, 112000, 118000, 126000, 134000, 142000, 151000, 159000, 168000, 176000, 184600],
+            borderColor: '#10b981',
+            backgroundColor: (ctx) => {
+              const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 220);
+              g.addColorStop(0, 'rgba(16,185,129,0.2)');
+              g.addColorStop(1, 'rgba(16,185,129,0)');
+              return g;
+            },
+            fill: true, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#10b981', borderWidth: 2,
+          }]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: false, ticks: { callback: v => 'R$ ' + (v/1000).toFixed(0) + 'k' } } } }
+      });
+
+      new Chart(document.getElementById('reportBarChart'), {
+        type: 'bar',
+        data: {
+          labels: ['Jun','Jul','Ago','Set','Out','Nov'],
+          datasets: [
+            { label: 'Novas', data: [280, 310, 295, 340, 365, 347], backgroundColor: '#3b82f6', borderRadius: 4, maxBarThickness: 24 },
+            { label: 'Cancelamentos', data: [42, 38, 51, 44, 35, 41], backgroundColor: '#ef4444', borderRadius: 4, maxBarThickness: 24 }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { position: 'top', labels: { usePointStyle: true, pointStyle: 'circle', padding: 16 } } },
+          scales: { y: { beginAtZero: true } }
+        }
+      });
+    }
+
+    // Init dashboard charts immediately (it's the default view)
+    initDashboardCharts();
+    chartsInitialized.dashboard = true;
+
+    // ─── Client search & filter ──────────────────────────
+    const clientSearch = document.getElementById('clientSearch');
+    const filterChips = document.querySelectorAll('.filter-chip');
+    let activeFilter = 'todos';
+
+    function filterClients() {
+      const query = (clientSearch?.value || '').toLowerCase();
+      const rows = document.querySelectorAll('.client-row');
+      rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        const plan = row.dataset.plan;
+        const matchesSearch = text.includes(query);
+        const matchesFilter = activeFilter === 'todos' || plan === activeFilter;
+        row.style.display = (matchesSearch && matchesFilter) ? 'flex' : 'none';
+      });
+    }
+
+    clientSearch?.addEventListener('input', filterClients);
+
+    filterChips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        filterChips.forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        activeFilter = chip.dataset.filter;
+        filterClients();
+      });
+    });
+  </script>
+</body>
+</html>

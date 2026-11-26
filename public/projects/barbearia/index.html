@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Barber & Co. — Barbearia premium com tradição e excelência.">
+  <title>Barber & Co. — Barbearia Premium</title>
+  <link rel="icon" href="../../img/favicon-gk.jpeg" type="image/jpeg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;600;700;900&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #f4f0ea;
+      --cream-dark: #e8e1d5;
+      --charcoal: #1a1715;
+      --brown: #3d2e1e;
+      --gold: #b8903a;
+      --gold-muted: rgba(184,144,58,0.6);
+      --muted: rgba(26,23,21,0.45);
+      --border: rgba(26,23,21,0.1);
+    }
+
+    html { scroll-behavior: smooth; scroll-padding-top: 72px; }
+
+    body {
+      background: var(--cream);
+      color: var(--charcoal);
+      font-family: 'Manrope', sans-serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3 { font-family: 'Bodoni Moda', serif; }
+    a { color: var(--charcoal); text-decoration: none; transition: color 0.3s; }
+
+    .back-link {
+      position: fixed; top: 20px; left: 20px; z-index: 100;
+      font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
+      backdrop-filter: blur(8px); background: rgba(244,240,234,0.7); padding: 8px 16px;
+      border-radius: 20px; border: 1px solid var(--border); transition: all 0.3s;
+    }
+    .back-link:hover { color: var(--charcoal); border-color: var(--charcoal); }
+
+    /* ─── Nav ─── */
+    nav {
+      position: fixed; top: 0; width: 100%; z-index: 90;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 18px 48px; background: rgba(244,240,234,0.9);
+      backdrop-filter: blur(14px); border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { font-family: 'Bodoni Moda', serif; font-weight: 900; font-size: 1.4rem; letter-spacing: 0.08em; text-transform: uppercase; }
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a { color: var(--muted); font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 500; }
+    .nav-links a:hover { color: var(--charcoal); }
+    .nav-cta {
+      padding: 10px 28px; background: var(--charcoal); color: var(--cream);
+      font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase;
+      font-weight: 600; border-radius: 0; transition: all 0.3s; display: inline-block;
+    }
+    .nav-cta:hover { background: var(--brown); color: var(--cream); }
+    .hamburger { display: none; background: none; border: none; cursor: pointer; }
+    .hamburger span { display: block; width: 26px; height: 2px; background: var(--charcoal); margin: 6px 0; transition: 0.3s; }
+
+    /* ─── Hero — full viewport editorial split ─── */
+    .hero {
+      height: 100vh; max-height: 800px; display: grid; grid-template-columns: 1fr 1fr;
+      padding-top: 72px;
+    }
+    .hero-left {
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 60px 64px; position: relative;
+    }
+    .hero-left::before {
+      content: 'EST. 2010';
+      position: absolute; top: 100px; left: 64px;
+      font-size: 0.65rem; letter-spacing: 0.35em; text-transform: uppercase;
+      color: var(--gold); font-weight: 600;
+    }
+    .hero h1 {
+      font-size: clamp(3.5rem, 6vw, 6rem); font-weight: 900;
+      line-height: 0.92; letter-spacing: -0.02em; margin-bottom: 24px;
+    }
+    .hero h1 em {
+      font-style: italic; font-weight: 400;
+      color: var(--gold);
+    }
+    .hero-desc { font-size: 0.95rem; color: var(--muted); max-width: 380px; margin-bottom: 36px; line-height: 1.7; }
+    .hero-buttons { display: flex; gap: 16px; align-items: center; }
+    .btn-dark {
+      display: inline-block; padding: 16px 44px; background: var(--charcoal); color: var(--cream);
+      font-size: 0.78rem; letter-spacing: 0.15em; text-transform: uppercase;
+      font-weight: 600; transition: all 0.3s;
+    }
+    .btn-dark:hover { background: var(--brown); color: var(--cream); transform: translateY(-2px); }
+    .btn-text { font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); font-weight: 500; border-bottom: 1px solid var(--muted); padding-bottom: 2px; }
+    .btn-text:hover { color: var(--charcoal); border-color: var(--charcoal); }
+
+    .hero-right {
+      position: relative; overflow: hidden;
+    }
+    .hero-right img {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    .hero-right::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(to right, var(--cream) 0%, transparent 15%);
+      pointer-events: none;
+    }
+
+    /* ─── Marquee ─── */
+    .marquee-wrap {
+      overflow: hidden; padding: 20px 0;
+      border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+      background: var(--cream-dark);
+    }
+    .marquee {
+      display: flex; gap: 48px; white-space: nowrap;
+      animation: marqueeScroll 20s linear infinite;
+    }
+    .marquee span {
+      font-family: 'Bodoni Moda', serif; font-size: 0.85rem; font-weight: 400;
+      letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted);
+    }
+    .marquee .dot { color: var(--gold); font-size: 0.5rem; }
+    @keyframes marqueeScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    /* ─── Sections ─── */
+    section { padding: 100px 48px; }
+    .section-label {
+      font-size: 0.65rem; letter-spacing: 0.35em; text-transform: uppercase;
+      color: var(--gold); font-weight: 600; margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: clamp(2.2rem, 4.5vw, 3.8rem); font-weight: 700;
+      line-height: 1.05; margin-bottom: 20px; letter-spacing: -0.01em;
+    }
+    .section-title em { font-style: italic; font-weight: 400; }
+    .container { max-width: 1200px; margin: 0 auto; }
+
+    /* ─── Sobre — offset layout ─── */
+    .sobre { background: var(--cream); }
+    .sobre-layout { display: grid; grid-template-columns: 1.2fr 1fr; gap: 80px; align-items: center; }
+    .sobre-visual {
+      position: relative;
+    }
+    .sobre-box-big {
+      width: 100%; aspect-ratio: 4/5;
+      position: relative; overflow: hidden;
+    }
+    .sobre-box-big img {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    .sobre-box-small {
+      position: absolute; bottom: -30px; right: -30px; width: 55%; aspect-ratio: 1;
+      background: var(--gold); display: flex; align-items: center; justify-content: center;
+    }
+    .sobre-box-small-inner {
+      text-align: center; color: var(--charcoal);
+    }
+    .sobre-box-small-inner .num { font-family: 'Bodoni Moda', serif; font-size: 3rem; font-weight: 900; line-height: 1; }
+    .sobre-box-small-inner .txt { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 600; }
+    .sobre-text p { color: var(--muted); margin-bottom: 14px; font-size: 0.92rem; }
+    .sobre-stats {
+      display: flex; gap: 40px; margin-top: 32px; padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+    .stat-num { font-family: 'Bodoni Moda', serif; font-size: 2.4rem; font-weight: 900; color: var(--charcoal); line-height: 1; }
+    .stat-text { font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
+
+    /* ─── Serviços — horizontal scroll cards ─── */
+    .servicos { background: var(--charcoal); color: var(--cream); overflow: visible; }
+    .servicos .section-label { color: var(--gold); }
+    .servicos .section-title { color: var(--cream); }
+    .servicos-scroll {
+      display: flex; gap: 20px; overflow-x: auto; overflow-y: visible; padding-bottom: 20px;
+      scroll-snap-type: x mandatory; -ms-overflow-style: none; scrollbar-width: none;
+      cursor: grab;
+    }
+    .servicos-scroll::-webkit-scrollbar { display: none; }
+    .servico-card {
+      flex: 0 0 320px; scroll-snap-align: start;
+      background: rgba(244,240,234,0.04); border: 1px solid rgba(244,240,234,0.08);
+      padding: 36px 28px; position: relative; overflow: hidden; transition: all 0.35s;
+    }
+    .servico-card:hover { background: rgba(244,240,234,0.07); border-color: rgba(184,144,58,0.3); }
+    .servico-num {
+      font-family: 'Bodoni Moda', serif; font-size: 5rem; font-weight: 900;
+      color: rgba(184,144,58,0.08); position: absolute; top: -10px; right: 16px; line-height: 1;
+    }
+    .servico-icon { margin-bottom: 20px; color: var(--gold); }
+    .servico-card h3 { font-family: 'Bodoni Moda', serif; font-size: 1.3rem; font-weight: 700; margin-bottom: 10px; }
+    .servico-card p { font-size: 0.82rem; color: rgba(244,240,234,0.5); margin-bottom: 24px; line-height: 1.6; }
+    .servico-price {
+      font-family: 'Bodoni Moda', serif; font-size: 1.8rem; font-weight: 700; color: var(--gold);
+    }
+    .servico-price small { font-size: 0.7rem; color: rgba(244,240,234,0.4); font-family: 'Manrope', sans-serif; }
+    .scroll-hint {
+      font-size: 0.68rem; letter-spacing: 0.15em; text-transform: uppercase;
+      color: rgba(244,240,234,0.3); margin-top: 16px; display: flex; align-items: center; gap: 8px;
+    }
+    .scroll-hint::before {
+      content: ''; width: 32px; height: 1px; background: rgba(244,240,234,0.2);
+    }
+
+    /* ─── Galeria — mosaic grid ─── */
+    .galeria { background: var(--cream-dark); }
+    .galeria-mosaic {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: 200px 200px;
+      gap: 8px;
+    }
+    .galeria-item {
+      position: relative; overflow: hidden;
+      display: flex; align-items: flex-end; padding: 16px;
+      transition: all 0.4s;
+    }
+    .galeria-item img {
+      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+    .galeria-item:hover img { transform: scale(1.05); }
+    .galeria-item::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(26,23,21,0.6) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    .galeria-item span {
+      font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: rgba(244,240,234,0.8); position: relative; z-index: 1;
+    }
+    .galeria-item:nth-child(1) { grid-column: span 2; grid-row: span 2; }
+    .galeria-item:nth-child(3) span { color: var(--cream); }
+
+    /* ─── Depoimentos — large quote style ─── */
+    .depoimentos { background: var(--cream); }
+    .depo-list { display: flex; flex-direction: column; gap: 48px; max-width: 700px; }
+    .depo-item { position: relative; padding-left: 40px; }
+    .depo-item::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+      width: 2px; background: var(--gold);
+    }
+    .depo-quote {
+      font-family: 'Bodoni Moda', serif; font-size: 1.3rem; font-weight: 400;
+      font-style: italic; line-height: 1.6; color: var(--charcoal); margin-bottom: 16px;
+    }
+    .depo-author { font-size: 0.82rem; font-weight: 600; }
+    .depo-role { font-size: 0.72rem; color: var(--muted); }
+    .depo-stars { color: var(--gold); font-size: 0.78rem; margin-bottom: 8px; }
+
+    /* ─── Contato — dark block ─── */
+    .contato { background: var(--charcoal); color: var(--cream); }
+    .contato .section-label { color: var(--gold); }
+    .contato .section-title { color: var(--cream); }
+    .contato-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; }
+    .contato-left {}
+    .contato-left p { color: rgba(244,240,234,0.5); margin-bottom: 32px; font-size: 0.92rem; }
+    .btn-gold-solid {
+      display: inline-block; padding: 16px 44px; background: var(--gold); color: var(--charcoal);
+      font-size: 0.78rem; letter-spacing: 0.15em; text-transform: uppercase;
+      font-weight: 700; transition: all 0.3s;
+    }
+    .btn-gold-solid:hover { background: #cfa040; color: var(--charcoal); transform: translateY(-2px); }
+    .contato-details { margin-top: 48px; }
+    .detail-row {
+      display: flex; align-items: flex-start; gap: 16px; padding: 16px 0;
+      border-bottom: 1px solid rgba(244,240,234,0.06);
+    }
+    .detail-icon { opacity: 0.5; width: 24px; text-align: center; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .detail-label { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(244,240,234,0.35); margin-bottom: 2px; }
+    .detail-value { font-size: 0.9rem; color: var(--cream); }
+
+    .contato-right { display: flex; align-items: center; justify-content: center; }
+    .contato-hours-block {
+      width: 100%; background: rgba(244,240,234,0.03); border: 1px solid rgba(244,240,234,0.06);
+      padding: 40px;
+    }
+    .contato-hours-block h3 { font-size: 1.3rem; margin-bottom: 24px; color: var(--gold); }
+    .hours-row {
+      display: flex; justify-content: space-between; padding: 12px 0;
+      border-bottom: 1px solid rgba(244,240,234,0.04); font-size: 0.88rem;
+    }
+    .hours-row .day { color: var(--cream); }
+    .hours-row .time { color: rgba(244,240,234,0.5); }
+    .hours-row.closed .time { color: rgba(239,68,68,0.6); }
+
+    /* ─── Footer ─── */
+    footer {
+      text-align: center; padding: 32px 48px;
+      background: var(--charcoal); color: rgba(244,240,234,0.3);
+      font-size: 0.72rem; border-top: 1px solid rgba(244,240,234,0.05);
+    }
+    footer a { color: var(--gold); }
+
+    /* ─── Reveal ─── */
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.8s ease, transform 0.8s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+    .reveal-left { opacity: 0; transform: translateX(-40px); transition: opacity 0.8s ease, transform 0.8s ease; }
+    .reveal-left.visible { opacity: 1; transform: none; }
+    .reveal-right { opacity: 0; transform: translateX(40px); transition: opacity 0.8s ease, transform 0.8s ease; }
+    .reveal-right.visible { opacity: 1; transform: none; }
+
+    /* ─── Mobile ─── */
+    @media (max-width: 900px) {
+      nav { padding: 14px 20px; }
+      .nav-links, .nav-cta { display: none; }
+      .hamburger { display: block; }
+      .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px,6px); }
+      .hamburger.active span:nth-child(2) { opacity: 0; }
+      .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px,-6px); }
+      .nav-links.open {
+        display: flex; flex-direction: column; position: absolute;
+        top: 100%; left: 0; right: 0; background: rgba(244,240,234,0.97);
+        backdrop-filter: blur(12px); padding: 24px; gap: 16px;
+        border-bottom: 1px solid var(--border);
+      }
+      section { padding: 72px 20px; }
+      .hero { grid-template-columns: 1fr; min-height: auto; }
+      .hero-left { padding: 100px 24px 48px; }
+      .hero-left::before { left: 24px; top: 80px; }
+      .hero-right { min-height: 60vh; }
+      .hero-visual-text { font-size: 5rem; right: -10px; }
+      .sobre-layout { grid-template-columns: 1fr; gap: 60px; }
+      .sobre-box-small { right: 0; bottom: -20px; }
+      .galeria-mosaic { grid-template-columns: 1fr 1fr; grid-template-rows: repeat(3, 160px); }
+      .galeria-item:nth-child(1) { grid-column: span 2; grid-row: span 1; }
+      .contato-layout { grid-template-columns: 1fr; gap: 48px; }
+      .back-link { top: auto; bottom: 20px; left: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <a href="../../index.html#portfolio" class="back-link">← Voltar ao portfólio</a>
+
+  <nav>
+    <span class="nav-logo">Barber & Co.</span>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#sobre">Sobre</a></li>
+      <li><a href="#servicos">Serviços</a></li>
+      <li><a href="#galeria">Galeria</a></li>
+      <li><a href="#contato">Contato</a></li>
+    </ul>
+    <a href="#contato" class="nav-cta">Agendar</a>
+    <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </nav>
+
+  <!-- Hero — split editorial -->
+  <section class="hero" id="hero">
+    <div class="hero-left">
+      <h1 class="reveal">A Arte<br>da <em>Barbearia</em><br>Clássica</h1>
+      <p class="hero-desc reveal">14 anos na mesma esquina em Campinas. Corte na tesoura, barba na navalha e um café enquanto espera.</p>
+      <div class="hero-buttons reveal">
+        <a href="#contato" class="btn-dark">Agende agora</a>
+        <a href="#servicos" class="btn-text">Ver serviços →</a>
+      </div>
+    </div>
+    <div class="hero-right">
+      <img src="../../img/barbearia/barbeiro_cortando.jpeg" alt="Barbeiro realizando corte clássico" loading="eager">
+    </div>
+  </section>
+
+  <!-- Marquee -->
+  <div class="marquee-wrap">
+    <div class="marquee">
+      <span>Corte Clássico</span> <span class="dot">&middot;</span>
+      <span>Barba Premium</span> <span class="dot">&middot;</span>
+      <span>Hot Towel</span> <span class="dot">&middot;</span>
+      <span>Combo Executivo</span> <span class="dot">&middot;</span>
+      <span>Desde 2010</span> <span class="dot">&middot;</span>
+      <span>Campinas — SP</span> <span class="dot">&middot;</span>
+      <span>Corte Clássico</span> <span class="dot">&middot;</span>
+      <span>Barba Premium</span> <span class="dot">&middot;</span>
+      <span>Hot Towel</span> <span class="dot">&middot;</span>
+      <span>Combo Executivo</span> <span class="dot">&middot;</span>
+      <span>Desde 2010</span> <span class="dot">&middot;</span>
+      <span>Campinas — SP</span> <span class="dot">&middot;</span>
+    </div>
+  </div>
+
+  <!-- Sobre — offset blocks -->
+  <section class="sobre" id="sobre">
+    <div class="container">
+      <div class="sobre-layout">
+        <div class="sobre-visual reveal-left">
+          <div class="sobre-box-big"><img src="../../img/barbearia/corte_detalhe.jpeg" alt="Detalhe de corte com navalha" loading="lazy"></div>
+          <div class="sobre-box-small">
+            <div class="sobre-box-small-inner">
+              <div class="num">14</div>
+              <div class="txt">Anos</div>
+            </div>
+          </div>
+        </div>
+        <div class="sobre-text">
+          <p class="section-label reveal">Sobre nós</p>
+          <h2 class="section-title reveal">Mais que cortes.<br><em>Experiências.</em></h2>
+          <p class="reveal">Fundada em 2010 no coração de Campinas, a Barber & Co. nasceu da obsessão por detalhes. Cada lâmina afiada, cada toalha quente, cada produto selecionado a dedo.</p>
+          <p class="reveal">Nossos master barbers combinam a precisão da barbearia clássica com as tendências contemporâneas. O resultado: você sai daqui diferente.</p>
+          <div class="sobre-stats reveal">
+            <div><div class="stat-num">12k+</div><div class="stat-text">Clientes atendidos</div></div>
+            <div><div class="stat-num">5</div><div class="stat-text">Master barbers</div></div>
+            <div><div class="stat-num">4.9</div><div class="stat-text">Avaliação Google</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Serviços — horizontal scroll -->
+  <section class="servicos" id="servicos">
+    <div class="container">
+      <p class="section-label reveal">Serviços</p>
+      <h2 class="section-title reveal" style="margin-bottom: 40px;">Nosso <em>cardápio.</em></h2>
+      <div class="servicos-scroll">
+        <div class="servico-card reveal">
+          <div class="servico-num">01</div>
+          <div class="servico-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="18" r="3"/><circle cx="18" cy="18" r="3"/><line x1="8.5" y1="16.5" x2="18" y2="4"/><line x1="15.5" y1="16.5" x2="6" y2="4"/></svg></div>
+          <h3>Corte Clássico</h3>
+          <p>Tesoura ou máquina, do jeito que você preferir. Lavagem, secagem e acabamento nos mínimos detalhes.</p>
+          <div class="servico-price">R$ 65 <small>/ sessão</small></div>
+        </div>
+        <div class="servico-card reveal">
+          <div class="servico-num">02</div>
+          <div class="servico-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="8" y="2" width="4" height="16" rx="2"/><path d="M8 14l-3 6h10l-3-6"/></svg></div>
+          <h3>Barba na Navalha</h3>
+          <p>Alinhamento com navalha, toalha quente e finalização com balm. Feita sem pressa, como tem que ser.</p>
+          <div class="servico-price">R$ 45 <small>/ sessão</small></div>
+        </div>
+        <div class="servico-card reveal">
+          <div class="servico-num">03</div>
+          <div class="servico-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 20h16M6 16h12a2 2 0 0 0 2-2v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2a2 2 0 0 0 2 2z"/><path d="M9 4v2M12 4v2M15 4v2"/></svg></div>
+          <h3>Toalha Quente</h3>
+          <p>Toalhas quentes, vapor de eucalipto e massagem facial. Meia hora pra desligar da correria.</p>
+          <div class="servico-price">R$ 55 <small>/ sessão</small></div>
+        </div>
+        <div class="servico-card reveal">
+          <div class="servico-num">04</div>
+          <div class="servico-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 18l3-12 3 6 3-6 3 6 3-6 3 12H3z"/></svg></div>
+          <h3>Combo Completo</h3>
+          <p>Corte, barba e toalha quente num pacote só. Chega, senta e sai pronto. Simples assim.</p>
+          <div class="servico-price">R$ 130 <small>/ combo</small></div>
+        </div>
+      </div>
+      <div class="scroll-hint">Arraste para ver mais</div>
+    </div>
+  </section>
+
+  <!-- Galeria — mosaic -->
+  <section class="galeria" id="galeria">
+    <div class="container">
+      <p class="section-label reveal">Galeria</p>
+      <h2 class="section-title reveal" style="margin-bottom: 40px;">Nosso <em>espaço.</em></h2>
+      <div class="galeria-mosaic reveal">
+        <div class="galeria-item"><img src="../../img/barbearia/ambiente.jpeg" alt="Ambiente da barbearia" loading="lazy"><span>Ambiente</span></div>
+        <div class="galeria-item"><img src="../../img/barbearia/barbeiro_cortando.jpeg" alt="Barbeiro em ação" loading="lazy"><span>Cortes</span></div>
+        <div class="galeria-item"><img src="../../img/barbearia/produtos1.jpeg" alt="Produtos premium" loading="lazy"><span>Produtos</span></div>
+        <div class="galeria-item"><img src="../../img/barbearia/corte_detalhe.jpeg" alt="Detalhe de corte" loading="lazy"><span>Detalhes</span></div>
+        <div class="galeria-item"><img src="../../img/barbearia/detalhes.jpeg" alt="Detalhes do espaço" loading="lazy"><span>Acabamento</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Depoimentos — large quotes -->
+  <section class="depoimentos" id="depoimentos">
+    <div class="container">
+      <p class="section-label reveal">Clientes</p>
+      <h2 class="section-title reveal" style="margin-bottom: 48px;">O que dizem<br>sobre <em>nós.</em></h2>
+      <div class="depo-list">
+        <div class="depo-item reveal">
+          <p class="depo-quote">"Corto cabelo lá toda terça há uns 3 anos. Já tentei trocar uma vez, voltei no mês seguinte. Ninguém acerta o degradê como o Marcão."</p>
+          <div class="depo-author">Rafael Mendes</div>
+          <div class="depo-role">Cliente desde 2021</div>
+        </div>
+        <div class="depo-item reveal">
+          <p class="depo-quote">"Fui pela primeira vez antes de uma reunião importante. Barba feita na navalha, toalha quente, café... cheguei no escritório outro cara."</p>
+          <div class="depo-author">Lucas Ferreira</div>
+          <div class="depo-role">Cliente desde 2023</div>
+        </div>
+        <div class="depo-item reveal">
+          <p class="depo-quote">"Meu filho de 8 anos faz questão de ir lá. Diz que é coisa de homem. Pra mim já valeu só por isso."</p>
+          <div class="depo-author">André Costa</div>
+          <div class="depo-role">Cliente desde 2024</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contato -->
+  <section class="contato" id="contato">
+    <div class="container">
+      <div class="contato-layout">
+        <div class="contato-left">
+          <p class="section-label reveal">Contato</p>
+          <h2 class="section-title reveal" style="color: var(--cream);">Agende sua<br><em>experiência.</em></h2>
+          <p class="reveal">Escolha o melhor horário e venha conhecer o que a tradição e o cuidado de verdade podem fazer por você.</p>
+          <div class="reveal">
+            <a href="#" class="btn-gold-solid">Agendar pelo WhatsApp</a>
+          </div>
+          <div class="contato-details">
+            <div class="detail-row reveal">
+              <div class="detail-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg></div>
+              <div><div class="detail-label">Endereço</div><div class="detail-value">Rua Barão de Jaguara, 1024 · Centro · Campinas — SP</div></div>
+            </div>
+            <div class="detail-row reveal">
+              <div class="detail-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
+              <div><div class="detail-label">Telefone</div><div class="detail-value">(19) 99876-5432</div></div>
+            </div>
+            <div class="detail-row reveal">
+              <div class="detail-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 4L12 13 2 4"/></svg></div>
+              <div><div class="detail-label">E-mail</div><div class="detail-value">contato@barberco.com.br</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="contato-right reveal-right">
+          <div class="contato-hours-block">
+            <h3>Horários</h3>
+            <div class="hours-row"><span class="day">Segunda</span><span class="time">09h — 20h</span></div>
+            <div class="hours-row"><span class="day">Terça</span><span class="time">09h — 20h</span></div>
+            <div class="hours-row"><span class="day">Quarta</span><span class="time">09h — 20h</span></div>
+            <div class="hours-row"><span class="day">Quinta</span><span class="time">09h — 20h</span></div>
+            <div class="hours-row"><span class="day">Sexta</span><span class="time">09h — 20h</span></div>
+            <div class="hours-row"><span class="day">Sábado</span><span class="time">09h — 18h</span></div>
+            <div class="hours-row closed"><span class="day">Domingo</span><span class="time">Fechado</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2026 Barber & Co. — Todos os direitos reservados.</p>
+    <p style="margin-top: 6px;">Site fictício — Desenvolvido por <a href="../../index.html">Guilherme Kal</a></p>
+  </footer>
+
+  <script>
+    // Hamburger
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.getElementById('navLinks');
+    hamburger.addEventListener('click', () => { hamburger.classList.toggle('active'); navLinks.classList.toggle('open'); });
+    navLinks.querySelectorAll('a').forEach(l => l.addEventListener('click', () => { hamburger.classList.remove('active'); navLinks.classList.remove('open'); }));
+
+    // Reveal
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => obs.observe(el));
+
+    // Drag-to-scroll for services
+    const slider = document.querySelector('.servicos-scroll');
+    if (slider) {
+      let isDown = false, startX, scrollLeft;
+      slider.addEventListener('mousedown', e => { isDown = true; slider.style.cursor = 'grabbing'; startX = e.pageX - slider.offsetLeft; scrollLeft = slider.scrollLeft; });
+      slider.addEventListener('mouseleave', () => { isDown = false; slider.style.cursor = 'grab'; });
+      slider.addEventListener('mouseup', () => { isDown = false; slider.style.cursor = 'grab'; });
+      slider.addEventListener('mousemove', e => { if (!isDown) return; e.preventDefault(); const x = e.pageX - slider.offsetLeft; slider.scrollLeft = scrollLeft - (x - startX); });
+    }
+  </script>
+</body>
+</html>

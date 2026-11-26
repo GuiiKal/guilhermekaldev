@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Flowly — Produtividade sem ruído. Gestão de tarefas, automações e analytics para equipes modernas.">
+  <title>Flowly — Produtividade sem ruído</title>
+  <link rel="icon" href="../../img/favicon-gk.jpeg" type="image/jpeg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #09090b;
+      --bg-card: rgba(255,255,255,0.03);
+      --bg-card-hover: rgba(255,255,255,0.06);
+      --white: #fafafa;
+      --muted: rgba(250,250,250,0.45);
+      --purple: #a855f7;
+      --cyan: #06b6d4;
+      --blue: #3b82f6;
+      --border: rgba(255,255,255,0.08);
+      --glow: rgba(168,85,247,0.15);
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; }
+    a { color: var(--purple); text-decoration: none; transition: color 0.3s; }
+    a:hover { color: var(--cyan); }
+
+    .back-link {
+      position: fixed; top: 20px; left: 20px; z-index: 100;
+      font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
+      backdrop-filter: blur(8px); background: rgba(9,9,11,0.7); padding: 8px 16px;
+      border-radius: 20px; border: 1px solid var(--border); transition: all 0.3s;
+    }
+    .back-link:hover { color: var(--purple); border-color: var(--purple); }
+
+    /* Grid background */
+    body::before {
+      content: ''; position: fixed; inset: 0; z-index: -1;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+    /* Nav */
+    nav {
+      position: fixed; top: 0; width: 100%; z-index: 90;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 40px; background: rgba(9,9,11,0.8);
+      backdrop-filter: blur(16px); border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.3rem;
+      background: linear-gradient(135deg, var(--purple), var(--cyan));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .nav-links { display: flex; gap: 28px; list-style: none; }
+    .nav-links a { color: var(--muted); font-size: 0.82rem; letter-spacing: 0.05em; }
+    .nav-links a:hover { color: var(--white); }
+    .nav-cta {
+      padding: 8px 22px; border-radius: 6px; font-size: 0.8rem; font-weight: 500;
+      background: linear-gradient(135deg, var(--purple), var(--blue)); color: white;
+      border: none; cursor: pointer; transition: all 0.3s;
+    }
+    .nav-cta:hover { opacity: 0.85; transform: translateY(-1px); color: white; }
+    .hamburger { display: none; background: none; border: none; cursor: pointer; }
+    .hamburger span { display: block; width: 22px; height: 2px; background: var(--white); margin: 5px 0; transition: 0.3s; }
+
+    /* Buttons */
+    .btn-primary {
+      display: inline-block; padding: 14px 36px; border-radius: 8px;
+      background: linear-gradient(135deg, var(--purple), var(--blue)); color: white;
+      font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 0.88rem;
+      border: none; cursor: pointer; transition: all 0.3s;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--glow); color: white; }
+    .btn-ghost {
+      display: inline-block; padding: 14px 36px; border-radius: 8px;
+      background: transparent; color: var(--muted); font-family: 'Space Grotesk', sans-serif;
+      font-weight: 500; font-size: 0.88rem; border: 1px solid var(--border); cursor: pointer; transition: all 0.3s;
+    }
+    .btn-ghost:hover { color: var(--white); border-color: rgba(255,255,255,0.2); }
+
+    /* Hero */
+    .hero {
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; text-align: center;
+      padding: 120px 24px 80px; position: relative;
+    }
+    .hero::after {
+      content: ''; position: absolute; top: 20%; left: 50%; transform: translateX(-50%);
+      width: 600px; height: 600px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(168,85,247,0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px;
+      border-radius: 20px; border: 1px solid var(--border); background: var(--bg-card);
+      font-size: 0.75rem; color: var(--muted); margin-bottom: 28px; position: relative;
+    }
+    .hero-badge span { color: var(--cyan); }
+    .hero h1 {
+      font-size: clamp(3rem, 8vw, 5.5rem); font-weight: 700;
+      line-height: 1.05; margin-bottom: 20px; position: relative;
+      letter-spacing: -0.03em;
+    }
+    .hero h1 .gradient {
+      background: linear-gradient(135deg, var(--purple), var(--cyan));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .hero-desc {
+      font-size: clamp(0.95rem, 1.8vw, 1.1rem); color: var(--muted);
+      max-width: 520px; margin-bottom: 36px;
+    }
+    .hero-buttons { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; margin-bottom: 60px; }
+
+    /* App mockup */
+    .app-mockup {
+      position: relative; width: 100%; max-width: 700px;
+      border-radius: 12px; border: 1px solid var(--border);
+      background: rgba(255,255,255,0.02); padding: 0; overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 60px var(--glow);
+    }
+    .mockup-bar {
+      display: flex; align-items: center; gap: 8px; padding: 12px 16px;
+      background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border);
+    }
+    .mockup-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .mockup-body { padding: 24px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+    .mock-card {
+      border-radius: 8px; padding: 16px; border: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+    }
+    .mock-card .label { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
+    .mock-card .value { font-family: 'Space Grotesk', sans-serif; font-size: 1.3rem; font-weight: 700; }
+    .mock-chart { grid-column: span 3; height: 100px; border-radius: 8px; border: 1px solid var(--border); background: rgba(255,255,255,0.02); position: relative; overflow: hidden; }
+    .mock-chart svg { position: absolute; bottom: 0; left: 0; width: 100%; height: 80px; }
+
+    /* Sections */
+    section { padding: 100px 0; }
+    .section-label { font-size: 0.7rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--cyan); margin-bottom: 12px; }
+    .section-title { font-size: clamp(2rem, 5vw, 3rem); font-weight: 700; margin-bottom: 16px; line-height: 1.1; letter-spacing: -0.02em; }
+    .section-desc { color: var(--muted); max-width: 500px; font-size: 0.95rem; margin-bottom: 48px; }
+
+    /* Features */
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+    .feature-card {
+      padding: 28px 24px; border-radius: 12px; border: 1px solid var(--border);
+      background: var(--bg-card); transition: all 0.35s; position: relative; overflow: hidden;
+    }
+    .feature-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(circle at top left, rgba(168,85,247,0.08), transparent 60%);
+      opacity: 0; transition: opacity 0.35s;
+    }
+    .feature-card:hover { border-color: rgba(168,85,247,0.3); background: var(--bg-card-hover); transform: translateY(-4px); }
+    .feature-card:hover::before { opacity: 1; }
+    .feature-icon {
+      width: 44px; height: 44px; border-radius: 10px; background: rgba(168,85,247,0.12);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 18px; position: relative; color: var(--purple);
+    }
+    .feature-card h3 { font-size: 1.05rem; margin-bottom: 8px; font-weight: 600; position: relative; }
+    .feature-card p { font-size: 0.82rem; color: var(--muted); position: relative; }
+
+    /* Steps */
+    .steps-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+    .step { text-align: center; }
+    .step-num {
+      font-family: 'Space Grotesk', sans-serif; font-size: 3rem; font-weight: 700;
+      background: linear-gradient(135deg, var(--purple), var(--cyan));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      line-height: 1; margin-bottom: 16px;
+    }
+    .step h3 { font-size: 1.1rem; margin-bottom: 8px; }
+    .step p { font-size: 0.85rem; color: var(--muted); }
+    .step-connector { display: none; }
+
+    /* Metrics */
+    .metrics-row {
+      display: flex; justify-content: center; gap: 48px; flex-wrap: wrap;
+      padding: 48px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    }
+    .metric { text-align: center; }
+    .metric-num {
+      font-family: 'Space Grotesk', sans-serif; font-size: 2.5rem; font-weight: 700;
+      background: linear-gradient(135deg, var(--purple), var(--cyan));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      line-height: 1;
+    }
+    .metric-label { font-size: 0.75rem; color: var(--muted); margin-top: 6px; letter-spacing: 0.05em; }
+
+    /* Pricing */
+    .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+    .price-card {
+      padding: 32px 28px; border-radius: 16px; border: 1px solid var(--border);
+      background: var(--bg-card); transition: all 0.35s; position: relative;
+    }
+    .price-card.featured {
+      border-color: rgba(168,85,247,0.4);
+      background: rgba(168,85,247,0.06);
+      box-shadow: 0 0 40px rgba(168,85,247,0.1);
+    }
+    .price-card:hover { transform: translateY(-4px); }
+    .price-badge {
+      position: absolute; top: -10px; right: 20px;
+      background: linear-gradient(135deg, var(--purple), var(--blue)); color: white;
+      padding: 4px 14px; border-radius: 12px; font-size: 0.65rem; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .price-tier { font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--cyan); margin-bottom: 8px; }
+    .price-value { font-family: 'Space Grotesk', sans-serif; font-size: 2.5rem; font-weight: 700; margin-bottom: 4px; }
+    .price-value small { font-size: 0.85rem; color: var(--muted); font-weight: 400; }
+    .price-desc { font-size: 0.82rem; color: var(--muted); margin-bottom: 24px; }
+    .price-features { list-style: none; margin-bottom: 28px; }
+    .price-features li {
+      font-size: 0.82rem; color: var(--muted); padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04); display: flex; align-items: center; gap: 8px;
+    }
+    .price-features li::before { content: '✓'; color: var(--cyan); font-weight: 600; }
+    .price-btn {
+      display: block; width: 100%; padding: 12px; border-radius: 8px; text-align: center;
+      font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.3s; border: none;
+    }
+    .price-btn-primary { background: linear-gradient(135deg, var(--purple), var(--blue)); color: white; }
+    .price-btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+    .price-btn-ghost { background: transparent; color: var(--white); border: 1px solid var(--border); }
+    .price-btn-ghost:hover { border-color: rgba(255,255,255,0.2); }
+
+    /* CTA */
+    .cta-section {
+      text-align: center; padding: 100px 24px;
+      background: radial-gradient(ellipse at center, rgba(168,85,247,0.08), transparent 60%);
+    }
+    .cta-section h2 {
+      font-size: clamp(2rem, 5vw, 3rem); font-weight: 700; margin-bottom: 16px;
+      letter-spacing: -0.02em;
+    }
+    .cta-section p { color: var(--muted); margin-bottom: 32px; font-size: 0.95rem; }
+
+    /* Footer */
+    footer {
+      text-align: center; padding: 40px 24px;
+      border-top: 1px solid var(--border); font-size: 0.72rem; color: var(--muted);
+    }
+    footer a { color: var(--purple); }
+    .footer-links { display: flex; justify-content: center; gap: 24px; margin-bottom: 16px; }
+    .footer-links a { color: var(--muted); font-size: 0.75rem; }
+    .footer-links a:hover { color: var(--white); }
+
+    /* Reveal */
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    @media (max-width: 768px) {
+      nav { padding: 14px 20px; }
+      .nav-links, .nav-cta { display: none; }
+      .hamburger { display: block; }
+      .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px,5px); }
+      .hamburger.active span:nth-child(2) { opacity: 0; }
+      .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px,-5px); }
+      .nav-links.open {
+        display: flex; flex-direction: column; position: absolute;
+        top: 100%; left: 0; right: 0; background: rgba(9,9,11,0.95);
+        backdrop-filter: blur(16px); padding: 24px; gap: 16px;
+        border-bottom: 1px solid var(--border);
+      }
+      .mockup-body { grid-template-columns: 1fr; }
+      .mock-chart { grid-column: span 1; }
+      .steps-row { grid-template-columns: 1fr; gap: 40px; }
+      .back-link { top: auto; bottom: 20px; left: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <a href="../../index.html#portfolio" class="back-link">← Voltar ao portfólio</a>
+
+  <nav>
+    <span class="nav-logo">flowly</span>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#como-funciona">Como funciona</a></li>
+      <li><a href="#pricing">Planos</a></li>
+    </ul>
+    <a href="#pricing" class="nav-cta">Começar grátis</a>
+    <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-badge reveal"><span>Novo:</span> Automações com IA integradas</div>
+    <h1 class="reveal">Produtividade<br><span class="gradient">sem ruído.</span></h1>
+    <p class="hero-desc reveal">Tarefas, automações e métricas num lugar só. Feito pra equipes de 5 a 500 pessoas que precisam entregar, não gerenciar ferramentas.</p>
+    <div class="hero-buttons reveal">
+      <a href="#pricing" class="btn-primary">Começar grátis →</a>
+      <a href="#como-funciona" class="btn-ghost">Ver demo</a>
+    </div>
+    <div class="app-mockup reveal">
+      <div class="mockup-bar">
+        <div class="mockup-dot" style="background: #ef4444;"></div>
+        <div class="mockup-dot" style="background: #f59e0b;"></div>
+        <div class="mockup-dot" style="background: #10b981;"></div>
+      </div>
+      <div class="mockup-body">
+        <div class="mock-card">
+          <div class="label">Tarefas ativas</div>
+          <div class="value" style="color: var(--purple);">24</div>
+        </div>
+        <div class="mock-card">
+          <div class="label">Concluídas</div>
+          <div class="value" style="color: var(--cyan);">142</div>
+        </div>
+        <div class="mock-card">
+          <div class="label">Produtividade</div>
+          <div class="value" style="color: #10b981;">94%</div>
+        </div>
+        <div class="mock-chart">
+          <svg viewBox="0 0 700 80" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="chartGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="rgba(168,85,247,0.3)" />
+                <stop offset="100%" stop-color="rgba(168,85,247,0)" />
+              </linearGradient>
+            </defs>
+            <path d="M0,60 Q100,20 175,45 T350,25 T525,40 T700,15 V80 H0 Z" fill="url(#chartGrad)" />
+            <path d="M0,60 Q100,20 175,45 T350,25 T525,40 T700,15" fill="none" stroke="var(--purple)" stroke-width="2" />
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section id="features">
+    <div class="container">
+      <p class="section-label reveal">Features</p>
+      <h2 class="section-title reveal">Tudo que sua equipe <span class="gradient" style="background: linear-gradient(135deg, var(--purple), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">precisa.</span></h2>
+      <p class="section-desc reveal">Funcionalidades que resolvem problemas reais. Configuração em minutos, sem treinamento.</p>
+      <div class="features-grid">
+        <div class="feature-card reveal">
+          <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+          <h3>Gestão de Tarefas</h3>
+          <p>Kanban, listas ou timeline — escolha a visualização. Arraste cards, defina prazos e acompanhe entregas.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+          <h3>Automações</h3>
+          <p>Monte regras do tipo "quando X, faça Y". Mova cards, envie alertas, atualize status — tudo automático.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="12" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><line x1="8.7" y1="10.7" x2="15.3" y2="7.3"/><line x1="8.7" y1="13.3" x2="15.3" y2="16.7"/></svg></div>
+          <h3>Integrações</h3>
+          <p>Slack, Google Workspace, GitHub, Figma e mais 50 ferramentas conectadas em dois cliques.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="8" width="4" height="13" rx="0.5"/><rect x="7" y="4" width="4" height="17" rx="0.5"/><rect x="13" y="10" width="4" height="11" rx="0.5"/><rect x="19" y="2" width="4" height="19" rx="0.5"/></svg></div>
+          <h3>Analytics</h3>
+          <p>Veja quem entrega, onde trava e o que priorizar. Dashboards por membro, sprint ou projeto.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Como funciona -->
+  <section id="como-funciona" style="border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+    <div class="container">
+      <div style="text-align: center; margin-bottom: 60px;">
+        <p class="section-label reveal">Como funciona</p>
+        <h2 class="section-title reveal" style="margin-left: auto; margin-right: auto;">Três passos para a <span style="background: linear-gradient(135deg, var(--purple), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">eficiência.</span></h2>
+      </div>
+      <div class="steps-row">
+        <div class="step reveal">
+          <div class="step-num">01</div>
+          <h3>Conecte</h3>
+          <p>Importe seus projetos existentes ou comece do zero. Setup em menos de 2 minutos.</p>
+        </div>
+        <div class="step reveal">
+          <div class="step-num">02</div>
+          <h3>Automatize</h3>
+          <p>Configure regras inteligentes que eliminam trabalho repetitivo da sua rotina.</p>
+        </div>
+        <div class="step reveal">
+          <div class="step-num">03</div>
+          <h3>Escale</h3>
+          <p>Acompanhe métricas, identifique gargalos e escale a produtividade da equipe.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Metrics -->
+  <section>
+    <div class="container">
+      <div class="metrics-row reveal">
+        <div class="metric">
+          <div class="metric-num" data-target="2000">0</div>
+          <div class="metric-label">Equipes ativas</div>
+        </div>
+        <div class="metric">
+          <div class="metric-num" data-val="99.9%">99.9%</div>
+          <div class="metric-label">Uptime garantido</div>
+        </div>
+        <div class="metric">
+          <div class="metric-num" data-val="4.9★">4.9★</div>
+          <div class="metric-label">Avaliação média</div>
+        </div>
+        <div class="metric">
+          <div class="metric-num" data-val="<2s">&lt;2s</div>
+          <div class="metric-label">Tempo de resposta</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section id="pricing">
+    <div class="container">
+      <div style="text-align: center; margin-bottom: 60px;">
+        <p class="section-label reveal">Planos</p>
+        <h2 class="section-title reveal">Comece grátis.<br><span style="background: linear-gradient(135deg, var(--purple), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Escale quando precisar.</span></h2>
+      </div>
+      <div class="pricing-grid">
+        <div class="price-card reveal">
+          <div class="price-tier">Starter</div>
+          <div class="price-value">Grátis</div>
+          <p class="price-desc">Perfeito para começar. Até 5 membros.</p>
+          <ul class="price-features">
+            <li>Até 5 membros</li>
+            <li>Quadros ilimitados</li>
+            <li>500 automações/mês</li>
+            <li>Integrações básicas</li>
+          </ul>
+          <button class="price-btn price-btn-ghost">Começar grátis</button>
+        </div>
+        <div class="price-card featured reveal">
+          <div class="price-badge">Popular</div>
+          <div class="price-tier">Pro</div>
+          <div class="price-value">R$ 49 <small>/mês</small></div>
+          <p class="price-desc">Para equipes em crescimento.</p>
+          <ul class="price-features">
+            <li>Membros ilimitados</li>
+            <li>Automações ilimitadas</li>
+            <li>Analytics avançado</li>
+            <li>Integrações premium</li>
+            <li>Suporte prioritário</li>
+          </ul>
+          <button class="price-btn price-btn-primary">Assinar Pro</button>
+        </div>
+        <div class="price-card reveal">
+          <div class="price-tier">Enterprise</div>
+          <div class="price-value">Sob consulta</div>
+          <p class="price-desc">Para grandes operações.</p>
+          <ul class="price-features">
+            <li>Tudo do Pro</li>
+            <li>SSO & SAML</li>
+            <li>SLA personalizado</li>
+            <li>Gerente de sucesso dedicado</li>
+            <li>API & webhooks</li>
+          </ul>
+          <button class="price-btn price-btn-ghost">Falar com vendas</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <h2 class="reveal">Pronto para transformar<br>sua <span style="background: linear-gradient(135deg, var(--purple), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">produtividade?</span></h2>
+    <p class="reveal">Junte-se a mais de 2.000 equipes que já escolheram o Flowly.</p>
+    <a href="#pricing" class="btn-primary reveal">Começar grátis →</a>
+  </section>
+
+  <footer>
+    <div class="footer-links">
+      <a href="#">Termos</a><a href="#">Privacidade</a><a href="#">Status</a><a href="#">Blog</a>
+    </div>
+    <p>© 2026 Flowly Inc. — Produto fictício.</p>
+    <p style="margin-top: 6px;">Desenvolvido por <a href="../../index.html">Guilherme Kal</a></p>
+  </footer>
+
+  <script>
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.getElementById('navLinks');
+    hamburger.addEventListener('click', () => { hamburger.classList.toggle('active'); navLinks.classList.toggle('open'); });
+    navLinks.querySelectorAll('a').forEach(l => l.addEventListener('click', () => { hamburger.classList.remove('active'); navLinks.classList.remove('open'); }));
+
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+    // Counter animation for metrics
+    const counterObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        const el = e.target;
+        const target = parseInt(el.dataset.target);
+        if (!target) { counterObs.unobserve(el); return; }
+        const duration = 1500;
+        const start = performance.now();
+        function frame(now) {
+          const p = Math.min((now - start) / duration, 1);
+          const ease = 1 - Math.pow(1 - p, 4);
+          el.textContent = Math.round(ease * target).toLocaleString('pt-BR') + '+';
+          if (p < 1) requestAnimationFrame(frame);
+        }
+        requestAnimationFrame(frame);
+        counterObs.unobserve(el);
+      });
+    }, { threshold: 0.5 });
+    document.querySelectorAll('.metric-num[data-target]').forEach(el => counterObs.observe(el));
+  </script>
+</body>
+</html>

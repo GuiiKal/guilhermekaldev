@@ -51,6 +51,26 @@
       z-index: 100;
       backdrop-filter: blur(8px);
     }
+    #btn-back {
+      display: flex; align-items: center; gap: 5px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--muted);
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      padding: 5px 12px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    #btn-back:hover {
+      background: rgba(255,255,255,0.1);
+      color: var(--text);
+      border-color: var(--border-hover);
+    }
+    #btn-back svg { width: 14px; height: 14px; }
     #topbar .logo {
       display: flex; align-items: center; gap: 8px;
       flex-shrink: 0;
@@ -253,6 +273,7 @@
     }
     #svg-overlay {
       position: absolute; inset: 0;
+      width: 100%; height: 100%;
       pointer-events: none;
       z-index: 10;
     }
@@ -598,6 +619,11 @@
 
 <!-- TOPBAR -->
 <div id="topbar">
+  <a id="btn-back" href="../../index.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    Portfólio
+  </a>
+  <div class="sep"></div>
   <div class="logo">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
       <path d="M5 3L19 3M5 3V17M19 3V17M5 17L19 17M5 10H19" stroke="#3B82F6"/>
@@ -647,7 +673,7 @@
   <div id="canvas-wrap">
     <div id="canvas-bg"></div>
     <div id="canvas">
-      <svg id="svg-overlay"></svg>
+      <svg id="svg-overlay" width="100%" height="100%"></svg>
     </div>
   </div>
 
